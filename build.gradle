@@ -1,0 +1,29 @@
+plugins {
+	id 'java-library'
+	id 'antlr'
+}
+
+group = 'dev.gradleplugins'
+//version = '1.0'
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+tasks.named('test', Test) {
+	it.useJUnitPlatform()
+}
+
+def antlrVersion= '4.9.3'
+dependencies {
+	compileOnly 'dev.gradleplugins:gradle-api:6.2.2'
+	testImplementation 'dev.gradleplugins:gradle-api:6.2.2'
+	testImplementation platform('org.junit:junit-bom:5.10.0')
+	testImplementation 'org.junit.jupiter:junit-jupiter'
+	antlr "org.antlr:antlr4:${antlrVersion}"
+}
+
+tasks.named('generateGrammarSource', AntlrTask) { task ->
+	task.arguments += ['-visitor']
+}
