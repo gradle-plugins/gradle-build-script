@@ -47,7 +47,7 @@ public final class JavaPropertyAccessTransformer implements ASTTransformer {
         if (statement.getSelector() instanceof PropertyAccessExpression && ((PropertyAccessExpression) statement.getSelector()).getAccessType().equals(PropertyAccessExpression.AccessType.EXTENSION)) {
             final PropertyAccessExpression selector = (PropertyAccessExpression) statement.getSelector();
             // FIXME: convert block into lambda/closure
-            return new ExpressionStatement(new MethodCallExpression(new MethodCallExpression(selector.getObjectExpression(), "getExtensions", Collections.emptyList()), "configure", Arrays.asList(string(selector.getPropertyName()), literal("it -> {}")))).accept(this);
+            return new ExpressionStatement(new MethodCallExpression(new MethodCallExpression(selector.getObjectExpression(), "getExtensions", Collections.emptyList()), "configure", Arrays.asList(string(selector.getPropertyName()), literal("it -> {}"))).accept(this));
         }
         return ASTTransformer.super.visit(statement);
     }
