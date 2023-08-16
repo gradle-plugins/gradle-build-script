@@ -30,7 +30,7 @@ class KotlinDslSyntaxTests extends SyntaxTester {
 
     @Override
     public String expectedCommentedSingleLine__call_someMethod_no_args__call_someOtherMethod_foo_string() {
-        return "// someMethod()\n// someOtherMethod()";
+        return "// someMethod()\n// someOtherMethod(\"foo\")";
     }
 
     @Override

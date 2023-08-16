@@ -37,7 +37,9 @@ public final class KotlinPropertyAccessTransformer implements ASTTransformer {
         } else if (expression.getAccessType().equals(PropertyAccessExpression.AccessType.EXTRA)) {
             return new MethodCallExpression(new QualifiedExpression(expression.getType(), expression.getObjectExpression(), literal("extra")), "get", Collections.singletonList(string(expression.getPropertyName()))).accept(this);
         } else if (expression.getAccessType().equals(PropertyAccessExpression.AccessType.EXTENSION)) {
-            return new MethodCallExpression(new QualifiedExpression(objectExpression, literal("extensions")), "getByName", Collections.singletonList(new StringLiteralExpression(expression.getPropertyName()))).accept(this);
+            return new QualifiedExpression(objectExpression, literal(expression.getPropertyName())).accept(this);
+            // TODO: There should be a decision regarding if an extension is forced to access via API or not
+//            return new MethodCallExpression(new QualifiedExpression(objectExpression, literal("extensions")), "getByName", Collections.singletonList(new StringLiteralExpression(expression.getPropertyName()))).accept(this);
         } else {
             throw new UnsupportedOperationException();
         }

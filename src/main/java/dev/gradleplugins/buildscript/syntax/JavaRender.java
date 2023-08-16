@@ -133,10 +133,11 @@ public final class JavaRender implements RenderableSyntax.Renderer {
         public Content visit(VariableDeclarationExpression expression) {
             final StringBuilder builder = new StringBuilder();
             builder.append(expression.getModifiers().stream().map(it -> it.getKeyword().toString()).collect(Collectors.joining(" ")));
+            builder.append(" ");
             builder.append(expression.getType());
             builder.append(" ");
             builder.append(expression.getVariables().stream().map(this::render).collect(Collectors.joining(", ")));
-            return Content.of(builder.toString());
+            return Content.of(builder.toString().trim());
         }
 
         public Content visit(VariableDeclarator expression) {
