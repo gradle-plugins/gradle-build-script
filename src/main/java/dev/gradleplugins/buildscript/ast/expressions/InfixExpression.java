@@ -10,6 +10,9 @@ public final class InfixExpression implements Expression {
     private final Expression rightExpression;
 
     public InfixExpression(Expression leftExpression, Operator operator, Expression rightExpression) {
+        assert leftExpression != null;
+        assert operator != null;
+        assert rightExpression != null;
         this.leftExpression = leftExpression;
         this.operator = operator;
         this.rightExpression = rightExpression;

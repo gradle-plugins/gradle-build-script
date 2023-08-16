@@ -32,6 +32,8 @@ public final class GradleBlockStatement implements Statement {
     private final BlockStatement block;
 
     public GradleBlockStatement(Expression selector, BlockStatement block) {
+        assert selector != null;
+        assert block != null;
         this.selector = selector;
         this.block = block;
     }
