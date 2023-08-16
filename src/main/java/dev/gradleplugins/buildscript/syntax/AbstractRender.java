@@ -25,10 +25,12 @@ import dev.gradleplugins.buildscript.ast.expressions.NotExpression;
 import dev.gradleplugins.buildscript.ast.expressions.NullLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.PropertyAccessExpression;
 import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
+import dev.gradleplugins.buildscript.ast.expressions.SafeAsExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SafeNavigationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringInterpolationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.TernaryExpression;
 import dev.gradleplugins.buildscript.ast.expressions.TypeExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarator;
@@ -87,6 +89,11 @@ public class AbstractRender implements Statement.Visitor<Syntax.Content>, Expres
 
     @Override
     public Syntax.Content visit(AsExpression expression) {
+        throw invalidLanguageNode();
+    }
+
+    @Override
+    public Syntax.Content visit(SafeAsExpression expression) {
         throw invalidLanguageNode();
     }
 
@@ -152,6 +159,11 @@ public class AbstractRender implements Statement.Visitor<Syntax.Content>, Expres
 
     @Override
     public Syntax.Content visit(TypeExpression expression) {
+        throw invalidLanguageNode();
+    }
+
+    @Override
+    public Syntax.Content visit(TernaryExpression expression) {
         throw invalidLanguageNode();
     }
 

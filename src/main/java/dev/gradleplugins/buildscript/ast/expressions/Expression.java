@@ -29,6 +29,7 @@ public interface Expression extends Node {
         ReturnType visit(LiteralExpression expression);
         ReturnType visit(CastExpression expression);
         ReturnType visit(AsExpression expression);
+        ReturnType visit(SafeAsExpression expression);
         ReturnType visit(SetLiteralExpression expression);
         ReturnType visit(StringLiteralExpression expression);
         ReturnType visit(StringInterpolationExpression expression);
@@ -42,9 +43,11 @@ public interface Expression extends Node {
         ReturnType visit(CollectionLiteralExpression expression);
         ReturnType visit(SafeNavigationExpression expression);
 
-        ReturnType visit(GroovyDslLiteral statement);
+        ReturnType visit(GroovyDslLiteral expression);
 
         ReturnType visit(TypeExpression expression);
+
+        ReturnType visit(TernaryExpression expression);
 
         ReturnType visit(CurrentScopeExpression expression); // ???
         ReturnType visit(ItExpression expression); // ???

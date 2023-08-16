@@ -2,23 +2,23 @@ package dev.gradleplugins.buildscript.ast.expressions;
 
 import dev.gradleplugins.buildscript.ast.type.Type;
 
-// Represents a C-style cast expression.
-public final class CastExpression implements CastingExpression {
+public final class SafeAsExpression implements CastingExpression {
     private final Type type;
     private final Expression expression;
 
-    public CastExpression(Type type, Expression expression) {
+    public SafeAsExpression(Type type, Expression expression) {
         this.type = type;
         this.expression = expression;
     }
 
     @Override
-    public Type getType() {
-        return type;
-    }
-
     public Expression getExpression() {
         return expression;
+    }
+
+    @Override
+    public Type getType() {
+        return type;
     }
 
     @Override

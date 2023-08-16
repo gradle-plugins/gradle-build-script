@@ -26,6 +26,7 @@ import dev.gradleplugins.buildscript.ast.expressions.SafeNavigationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringInterpolationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.TernaryExpression;
 import dev.gradleplugins.buildscript.ast.expressions.TypeExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarator;
@@ -326,6 +327,11 @@ public final class GroovyRender implements RenderableSyntax.Renderer {
         @Override
         public Content visit(SafeNavigationExpression expression) {
             return Content.of(render(expression.getObjectExpression()) + "?." + render(expression.getPropertyExpression()));
+        }
+
+        @Override
+        public Content visit(TernaryExpression expression) {
+            return Content.of(render(expression.getCondition()) + " ? " + render(expression.getTrueExpression()) + " : " + render(expression.getFalseExpression()));
         }
     }
 }

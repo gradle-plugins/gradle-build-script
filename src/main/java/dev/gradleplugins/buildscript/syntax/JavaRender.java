@@ -20,6 +20,7 @@ import dev.gradleplugins.buildscript.ast.expressions.NotExpression;
 import dev.gradleplugins.buildscript.ast.expressions.NullLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.TernaryExpression;
 import dev.gradleplugins.buildscript.ast.expressions.TypeExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarator;
@@ -207,6 +208,11 @@ public final class JavaRender implements RenderableSyntax.Renderer {
         @Override
         public Content visit(InfixExpression expression) {
             return Content.of(render(expression.getLeftExpression()) + " " + expression.getOperator() + " " + render(expression.getRightExpression()));
+        }
+
+        @Override
+        public Content visit(TernaryExpression expression) {
+            return Content.of(render(expression.getCondition()) + " ? " + render(expression.getTrueExpression()) + " : " + render(expression.getFalseExpression()));
         }
     }
 }

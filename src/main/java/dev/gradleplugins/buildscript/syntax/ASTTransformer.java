@@ -27,10 +27,12 @@ import dev.gradleplugins.buildscript.ast.expressions.NotExpression;
 import dev.gradleplugins.buildscript.ast.expressions.NullLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.PropertyAccessExpression;
 import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
+import dev.gradleplugins.buildscript.ast.expressions.SafeAsExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SafeNavigationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringInterpolationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.TernaryExpression;
 import dev.gradleplugins.buildscript.ast.expressions.TypeExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarator;
@@ -80,6 +82,16 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
     @Override
     default Expression visit(SafeNavigationExpression expression) {
         return new SafeNavigationExpression(expression.getObjectExpression().accept(this), expression.getPropertyExpression().accept(this));
+    }
+
+    @Override
+    default Expression visit(SafeAsExpression expression) {
+        return new SafeAsExpression(expression.getType(), expression.getExpression().accept(this));
+    }
+
+    @Override
+    default Expression visit(TernaryExpression expression) {
+        return new TernaryExpression(expression.getCondition().accept(this), expression.getTrueExpression().accept(this), expression.getFalseExpression().accept(this));
     }
 
     @Override

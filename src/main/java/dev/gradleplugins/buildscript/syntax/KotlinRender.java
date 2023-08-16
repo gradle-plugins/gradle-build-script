@@ -21,10 +21,12 @@ import dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression;
 import dev.gradleplugins.buildscript.ast.expressions.NotExpression;
 import dev.gradleplugins.buildscript.ast.expressions.NullLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
+import dev.gradleplugins.buildscript.ast.expressions.SafeAsExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SafeNavigationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringInterpolationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.TernaryExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarator;
 import dev.gradleplugins.buildscript.ast.statements.AssertStatement;
@@ -316,6 +318,16 @@ public final class KotlinRender implements RenderableSyntax.Renderer {
         @Override
         public Content visit(SafeNavigationExpression expression) {
             return Content.of(render(expression.getObjectExpression()) + "?." + render(expression.getPropertyExpression()));
+        }
+
+        @Override
+        public Content visit(SafeAsExpression expression) {
+            return Content.of(render(expression.getExpression()) + " as? " + expression.getType());
+        }
+
+        @Override
+        public Content visit(TernaryExpression expression) {
+            return Content.of("if " + render(expression.getCondition()) + " then " + render(expression.getTrueExpression()) + " else " + render(expression.getFalseExpression()));
         }
     }
 }

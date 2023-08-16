@@ -5,6 +5,7 @@ import dev.gradleplugins.buildscript.syntax.normalizer.Java11SetLiteralTransform
 import dev.gradleplugins.buildscript.syntax.normalizer.Java11VariableTransformer;
 import dev.gradleplugins.buildscript.syntax.normalizer.JavaCastingTransformer;
 import dev.gradleplugins.buildscript.syntax.normalizer.JavaPropertyAccessTransformer;
+import dev.gradleplugins.buildscript.syntax.normalizer.JavaSafeNavigationTransformer;
 
 import java.util.Arrays;
 
@@ -15,7 +16,8 @@ public class Java11Compatibility extends ASTNormalizer {
                 new Java11SetLiteralTransformer(),
                 new Java11MapLiteralTransformer(),
                 new Java11VariableTransformer(),
-                new JavaCastingTransformer()
+                new JavaCastingTransformer(),
+                new JavaSafeNavigationTransformer()
         ));
     }
 }
