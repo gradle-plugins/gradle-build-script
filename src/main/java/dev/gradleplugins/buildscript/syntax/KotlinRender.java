@@ -21,7 +21,9 @@ import dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression;
 import dev.gradleplugins.buildscript.ast.expressions.NotExpression;
 import dev.gradleplugins.buildscript.ast.expressions.NullLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
+import dev.gradleplugins.buildscript.ast.expressions.SafeNavigationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.StringInterpolationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarator;
@@ -294,6 +296,26 @@ public final class KotlinRender implements RenderableSyntax.Renderer {
                     throw new UnsupportedOperationException();
                 }
             }) + " }");
+        }
+
+        @Override
+        public Content visit(StringInterpolationExpression expression) {
+            final StringBuilder builder = new StringBuilder();
+            builder.append('"');
+            for (Expression e : expression) {
+                if (e instanceof StringLiteralExpression) {
+                    builder.append(((StringLiteralExpression) e).get());
+                } else {
+                    builder.append("${").append(render(e)).append("}");
+                }
+            }
+            builder.append('"');
+            return Content.of(builder.toString());
+        }
+
+        @Override
+        public Content visit(SafeNavigationExpression expression) {
+            return Content.of(render(expression.getObjectExpression()) + "?." + render(expression.getPropertyExpression()));
         }
     }
 }

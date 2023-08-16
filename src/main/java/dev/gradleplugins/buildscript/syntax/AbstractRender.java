@@ -8,6 +8,7 @@ import dev.gradleplugins.buildscript.ast.expressions.AssignmentExpression;
 import dev.gradleplugins.buildscript.ast.expressions.BooleanLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CastExpression;
 import dev.gradleplugins.buildscript.ast.expressions.ClassLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.CollectionLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression;
 import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
@@ -24,7 +25,9 @@ import dev.gradleplugins.buildscript.ast.expressions.NotExpression;
 import dev.gradleplugins.buildscript.ast.expressions.NullLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.PropertyAccessExpression;
 import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
+import dev.gradleplugins.buildscript.ast.expressions.SafeNavigationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.StringInterpolationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.TypeExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarationExpression;
@@ -98,6 +101,11 @@ public class AbstractRender implements Statement.Visitor<Syntax.Content>, Expres
     }
 
     @Override
+    public Syntax.Content visit(StringInterpolationExpression expression) {
+        throw invalidLanguageNode();
+    }
+
+    @Override
     public Syntax.Content visit(BooleanLiteralExpression expression) {
         throw invalidLanguageNode();
     }
@@ -129,6 +137,16 @@ public class AbstractRender implements Statement.Visitor<Syntax.Content>, Expres
 
     @Override
     public Syntax.Content visit(NotExpression expression) {
+        throw invalidLanguageNode();
+    }
+
+    @Override
+    public Syntax.Content visit(CollectionLiteralExpression expression) {
+        throw invalidLanguageNode();
+    }
+
+    @Override
+    public Syntax.Content visit(SafeNavigationExpression expression) {
         throw invalidLanguageNode();
     }
 

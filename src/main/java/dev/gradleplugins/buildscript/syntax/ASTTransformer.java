@@ -10,6 +10,7 @@ import dev.gradleplugins.buildscript.ast.expressions.AssignmentExpression;
 import dev.gradleplugins.buildscript.ast.expressions.BooleanLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CastExpression;
 import dev.gradleplugins.buildscript.ast.expressions.ClassLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.CollectionLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression;
 import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
@@ -26,7 +27,9 @@ import dev.gradleplugins.buildscript.ast.expressions.NotExpression;
 import dev.gradleplugins.buildscript.ast.expressions.NullLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.PropertyAccessExpression;
 import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
+import dev.gradleplugins.buildscript.ast.expressions.SafeNavigationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.StringInterpolationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.TypeExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarationExpression;
@@ -72,6 +75,21 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
     @Override
     default Expression visit(ItExpression expression) {
         return expression;
+    }
+
+    @Override
+    default Expression visit(SafeNavigationExpression expression) {
+        return new SafeNavigationExpression(expression.getObjectExpression().accept(this), expression.getPropertyExpression().accept(this));
+    }
+
+    @Override
+    default Expression visit(CollectionLiteralExpression expression) {
+        return new CollectionLiteralExpression(expression.getExpressions().stream().map(it -> it.accept(this)).collect(Collectors.toList()));
+    }
+
+    @Override
+    default Expression visit(StringInterpolationExpression expression) {
+        return new StringInterpolationExpression(StreamSupport.stream(expression.spliterator(), false).map(it -> it.accept(this)).collect(Collectors.toList()));
     }
 
     @Override
