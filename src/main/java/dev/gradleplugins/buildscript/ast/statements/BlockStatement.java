@@ -2,11 +2,14 @@ package dev.gradleplugins.buildscript.ast.statements;
 
 import dev.gradleplugins.buildscript.ast.ExpressionBuilder;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
+import dev.gradleplugins.buildscript.ast.expressions.LambdaExpression;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public final class BlockStatement implements Statement, Iterable<Statement> {
     private final List<Statement> statements;
@@ -24,6 +27,14 @@ public final class BlockStatement implements Statement, Iterable<Statement> {
     @Override
     public Iterator<Statement> iterator() {
         return statements.iterator();
+    }
+
+    public static BlockStatement fromLambda(LambdaExpression expression) {
+        if (expression.getBody() instanceof MultiStatement) {
+            return new BlockStatement(StreamSupport.stream(((MultiStatement) expression.getBody()).spliterator(), false).collect(Collectors.toList()));
+        } else {
+            throw new UnsupportedOperationException();
+        }
     }
 
     @SuppressWarnings("rawtypes")
