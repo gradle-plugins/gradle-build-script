@@ -11,6 +11,7 @@ import dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression;
 import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.expressions.FieldAccessExpression;
+import dev.gradleplugins.buildscript.ast.expressions.GroovyDslLiteral;
 import dev.gradleplugins.buildscript.ast.expressions.InfixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.InstanceOfExpression;
 import dev.gradleplugins.buildscript.ast.expressions.ItExpression;
@@ -31,7 +32,6 @@ import dev.gradleplugins.buildscript.ast.statements.BlockStatement;
 import dev.gradleplugins.buildscript.ast.statements.CommentedStatement;
 import dev.gradleplugins.buildscript.ast.statements.ExpressionStatement;
 import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
-import dev.gradleplugins.buildscript.ast.statements.GroovyDslLiteral;
 import dev.gradleplugins.buildscript.ast.statements.GroupStatement;
 import dev.gradleplugins.buildscript.ast.statements.MultiStatement;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
@@ -295,9 +295,9 @@ public final class GroovyRender implements RenderableSyntax.Renderer {
             return builder.build().grouped();
         }
 
-        public Content visit(GroovyDslLiteral statement) {
+        public Content visit(GroovyDslLiteral expression) {
             final Content.Builder builder = Content.builder();
-            statement.forEach(builder::add);
+            expression.forEach(builder::add);
             return builder.build();
         }
 

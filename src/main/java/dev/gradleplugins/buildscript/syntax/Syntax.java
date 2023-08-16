@@ -4,6 +4,7 @@ import dev.gradleplugins.buildscript.ast.ExpressionBuilder;
 import dev.gradleplugins.buildscript.ast.Node;
 import dev.gradleplugins.buildscript.ast.expressions.BooleanLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
+import dev.gradleplugins.buildscript.ast.expressions.GroovyDslLiteral;
 import dev.gradleplugins.buildscript.ast.expressions.LambdaExpression;
 import dev.gradleplugins.buildscript.ast.expressions.LiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MapLiteralExpression;
@@ -13,7 +14,6 @@ import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
 import dev.gradleplugins.buildscript.ast.statements.AssertStatement;
 import dev.gradleplugins.buildscript.ast.statements.CommentedStatement;
-import dev.gradleplugins.buildscript.ast.statements.GroovyDslLiteral;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
 import dev.gradleplugins.buildscript.ast.statements.TypeImportDeclaration;
 

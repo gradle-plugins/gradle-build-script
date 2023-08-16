@@ -15,7 +15,6 @@ public interface Statement extends Node {
 
     interface Visitor<ReturnType> {
         ReturnType visit(AssertStatement statement);
-        ReturnType visit(GroovyDslLiteral statement);
         ReturnType visit(CommentedStatement<?> statement);
         ReturnType visit(ExpressionStatement statement);
         ReturnType visit(GroupStatement statement);

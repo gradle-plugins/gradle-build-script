@@ -39,6 +39,8 @@ public interface Expression extends Node {
         ReturnType visit(EnclosedExpression expression);
         ReturnType visit(NotExpression expression);
 
+        ReturnType visit(GroovyDslLiteral statement);
+
         ReturnType visit(TypeExpression expression);
 
         ReturnType visit(CurrentScopeExpression expression); // ???

@@ -14,6 +14,7 @@ import dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression;
 import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.expressions.FieldAccessExpression;
+import dev.gradleplugins.buildscript.ast.expressions.GroovyDslLiteral;
 import dev.gradleplugins.buildscript.ast.expressions.InfixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.InstanceOfExpression;
 import dev.gradleplugins.buildscript.ast.expressions.ItExpression;
@@ -35,7 +36,6 @@ import dev.gradleplugins.buildscript.ast.statements.BlockStatement;
 import dev.gradleplugins.buildscript.ast.statements.CommentedStatement;
 import dev.gradleplugins.buildscript.ast.statements.ExpressionStatement;
 import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
-import dev.gradleplugins.buildscript.ast.statements.GroovyDslLiteral;
 import dev.gradleplugins.buildscript.ast.statements.GroupStatement;
 import dev.gradleplugins.buildscript.ast.statements.MultiStatement;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
@@ -205,8 +205,8 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
     }
 
     @Override
-    default Statement visit(GroovyDslLiteral statement) {
-        return statement;
+    default Expression visit(GroovyDslLiteral expression) {
+        return expression;
     }
 
     @Override

@@ -12,6 +12,7 @@ import dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression;
 import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.expressions.FieldAccessExpression;
+import dev.gradleplugins.buildscript.ast.expressions.GroovyDslLiteral;
 import dev.gradleplugins.buildscript.ast.expressions.InfixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.InstanceOfExpression;
 import dev.gradleplugins.buildscript.ast.expressions.ItExpression;
@@ -33,7 +34,6 @@ import dev.gradleplugins.buildscript.ast.statements.BlockStatement;
 import dev.gradleplugins.buildscript.ast.statements.CommentedStatement;
 import dev.gradleplugins.buildscript.ast.statements.ExpressionStatement;
 import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
-import dev.gradleplugins.buildscript.ast.statements.GroovyDslLiteral;
 import dev.gradleplugins.buildscript.ast.statements.GroupStatement;
 import dev.gradleplugins.buildscript.ast.statements.MultiStatement;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
@@ -173,7 +173,7 @@ public class AbstractRender implements Statement.Visitor<Syntax.Content>, Expres
     }
 
     @Override
-    public Syntax.Content visit(GroovyDslLiteral statement) {
+    public Syntax.Content visit(GroovyDslLiteral expression) {
         throw invalidLanguageNode();
     }
 
