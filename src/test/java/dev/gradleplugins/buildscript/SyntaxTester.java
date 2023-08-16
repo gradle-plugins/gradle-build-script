@@ -4,7 +4,7 @@ public abstract class SyntaxTester implements MapLiteralExpressionTester
     , StringLiteralExpressionTester
     , InstanceOfExpressionTester
     , MethodCallExpressionTester
-    , CastExpressionTester
+    , CastingExpressionTester
     , BooleanLiteralExpressionTester
     , AssertStatementTester
     , TypeImportDeclarationTester

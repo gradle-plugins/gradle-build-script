@@ -1,5 +1,6 @@
 package dev.gradleplugins.buildscript.syntax;
 
+import dev.gradleplugins.buildscript.syntax.normalizer.GroovyCastingTransformer;
 import dev.gradleplugins.buildscript.syntax.normalizer.GroovyPropertyAccessTransformer;
 import dev.gradleplugins.buildscript.syntax.normalizer.GroovyVariableTransformer;
 import dev.gradleplugins.buildscript.syntax.normalizer.MethodCallToGradleBlockTransformer;
@@ -11,7 +12,8 @@ public class GroovyCompatibility extends ASTNormalizer {
         super(Arrays.asList(
                 new MethodCallToGradleBlockTransformer(),
                 new GroovyPropertyAccessTransformer(),
-                new GroovyVariableTransformer()
+                new GroovyVariableTransformer(),
+                new GroovyCastingTransformer()
         ));
     }
 }

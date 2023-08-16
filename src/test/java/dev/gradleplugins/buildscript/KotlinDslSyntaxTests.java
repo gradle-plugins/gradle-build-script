@@ -214,8 +214,18 @@ class KotlinDslSyntaxTests extends SyntaxTester {
     }
 
     @Override
+    public String expectedCast__myExpression_castTo_String() {
+        return "myExpression as String";
+    }
+
+    @Override
     public String expectedCast__myExpression_as_String() {
         return "myExpression as String";
+    }
+
+    @Override
+    public String expectedCast__myExpression_safeAs_String() {
+        return "myExpression as? String";
     }
 
     @Override

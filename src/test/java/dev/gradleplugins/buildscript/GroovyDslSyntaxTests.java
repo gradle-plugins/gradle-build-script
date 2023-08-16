@@ -215,8 +215,18 @@ class GroovyDslSyntaxTests extends SyntaxTester {
     }
 
     @Override
-    public String expectedCast__myExpression_as_String() {
+    public String expectedCast__myExpression_castTo_String() {
         return "(String) myExpression";
+    }
+
+    @Override
+    public String expectedCast__myExpression_as_String() {
+        return "myExpression as String";
+    }
+
+    @Override
+    public String expectedCast__myExpression_safeAs_String() {
+        return "myExpression instanceof String ? myExpression as String : null";
     }
 
     @Override

@@ -217,8 +217,18 @@ class Java8SyntaxTests extends SyntaxTester {
     }
 
     @Override
+    public String expectedCast__myExpression_castTo_String() {
+        return "(String) myExpression";
+    }
+
+    @Override
     public String expectedCast__myExpression_as_String() {
         return "(String) myExpression";
+    }
+
+    @Override
+    public String expectedCast__myExpression_safeAs_String() {
+        return "myExpression instanceof String ? (String) myExpression : null";
     }
 
     @Override
