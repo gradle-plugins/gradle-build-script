@@ -17,6 +17,11 @@ public final class CastExpression implements CastingExpression {
         return type;
     }
 
+    @Override
+    public CastingType getCastingType() {
+        return CastingType.C_STYLE;
+    }
+
     public Expression getExpression() {
         return expression;
     }

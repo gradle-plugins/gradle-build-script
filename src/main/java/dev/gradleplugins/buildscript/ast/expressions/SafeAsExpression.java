@@ -12,6 +12,11 @@ public final class SafeAsExpression implements CastingExpression {
     }
 
     @Override
+    public CastingType getCastingType() {
+        return CastingType.SAFE_AS;
+    }
+
+    @Override
     public Expression getExpression() {
         return expression;
     }

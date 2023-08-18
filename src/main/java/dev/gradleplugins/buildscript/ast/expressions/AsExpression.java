@@ -17,6 +17,11 @@ public final class AsExpression implements CastingExpression {
         return type;
     }
 
+    @Override
+    public CastingType getCastingType() {
+        return CastingType.AS;
+    }
+
     public Expression getExpression() {
         return expression;
     }
