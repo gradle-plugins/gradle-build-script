@@ -11,7 +11,6 @@ import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.expressions.FieldAccessExpression;
 import dev.gradleplugins.buildscript.ast.expressions.GroovyDslLiteral;
 import dev.gradleplugins.buildscript.ast.expressions.InfixExpression;
-import dev.gradleplugins.buildscript.ast.expressions.InstanceOfExpression;
 import dev.gradleplugins.buildscript.ast.expressions.LiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MapLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression;
@@ -21,6 +20,7 @@ import dev.gradleplugins.buildscript.ast.expressions.PrefixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.TernaryExpression;
+import dev.gradleplugins.buildscript.ast.expressions.TypeComparisonExpression;
 import dev.gradleplugins.buildscript.ast.expressions.TypeExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarator;
@@ -86,8 +86,11 @@ public final class JavaRender implements RenderableSyntax.Renderer {
             return expression.accept(this).toString();
         }
 
-        public Content visit(InstanceOfExpression expression) {
-            return Content.of(render(expression.getExpression()) + " instanceof " + expression.getInstanceType());
+        public Content visit(TypeComparisonExpression expression) {
+            switch (expression.getComparisonType()) {
+                case INSTANCE_OF: return Content.of(render(expression.getExpression()) + " instanceof " + expression.getInstanceType());
+                default: throw invalidLanguageNode();
+            }
         }
 
         public Content visit(CastingExpression expression) {

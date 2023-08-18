@@ -13,7 +13,6 @@ import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.expressions.FieldAccessExpression;
 import dev.gradleplugins.buildscript.ast.expressions.GroovyDslLiteral;
 import dev.gradleplugins.buildscript.ast.expressions.InfixExpression;
-import dev.gradleplugins.buildscript.ast.expressions.InstanceOfExpression;
 import dev.gradleplugins.buildscript.ast.expressions.ItExpression;
 import dev.gradleplugins.buildscript.ast.expressions.LambdaExpression;
 import dev.gradleplugins.buildscript.ast.expressions.LiteralExpression;
@@ -29,6 +28,7 @@ import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringInterpolationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.TernaryExpression;
+import dev.gradleplugins.buildscript.ast.expressions.TypeComparisonExpression;
 import dev.gradleplugins.buildscript.ast.expressions.TypeExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarator;
@@ -116,11 +116,6 @@ public class AbstractRender implements Statement.Visitor<Syntax.Content>, Expres
     }
 
     @Override
-    public Syntax.Content visit(InstanceOfExpression expression) {
-        throw invalidLanguageNode();
-    }
-
-    @Override
     public Syntax.Content visit(EnclosedExpression expression) {
         throw invalidLanguageNode();
     }
@@ -147,6 +142,11 @@ public class AbstractRender implements Statement.Visitor<Syntax.Content>, Expres
 
     @Override
     public Syntax.Content visit(CastingExpression expression) {
+        throw invalidLanguageNode();
+    }
+
+    @Override
+    public Syntax.Content visit(TypeComparisonExpression expression) {
         throw invalidLanguageNode();
     }
 

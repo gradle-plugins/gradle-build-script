@@ -11,7 +11,6 @@ import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.expressions.FieldAccessExpression;
 import dev.gradleplugins.buildscript.ast.expressions.InfixExpression;
-import dev.gradleplugins.buildscript.ast.expressions.InstanceOfExpression;
 import dev.gradleplugins.buildscript.ast.expressions.ItExpression;
 import dev.gradleplugins.buildscript.ast.expressions.LambdaExpression;
 import dev.gradleplugins.buildscript.ast.expressions.LiteralExpression;
@@ -26,6 +25,7 @@ import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringInterpolationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.TernaryExpression;
+import dev.gradleplugins.buildscript.ast.expressions.TypeComparisonExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarator;
 import dev.gradleplugins.buildscript.ast.statements.AssertStatement;
@@ -117,8 +117,13 @@ public final class KotlinRender implements RenderableSyntax.Renderer {
             }
         }
 
-        public Content visit(InstanceOfExpression expression) {
-            return Content.of(render(expression.getExpression()) + " is " + expression.getInstanceType());
+        public Content visit(TypeComparisonExpression expression) {
+            switch (expression.getComparisonType()) {
+                case INSTANCE_OF: return Content.of(render(expression.getExpression()) + " is " + expression.getInstanceType());
+                case IS: return Content.of(render(expression.getExpression()) + " is " + expression.getInstanceType());
+                case SAFE_IS: return Content.of(render(expression.getExpression()) + " is? " + expression.getInstanceType());
+                default: throw invalidLanguageNode();
+            }
         }
 
         public Content visit(BooleanLiteralExpression expression) {

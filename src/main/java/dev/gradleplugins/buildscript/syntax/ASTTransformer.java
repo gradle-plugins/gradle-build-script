@@ -15,7 +15,6 @@ import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.expressions.FieldAccessExpression;
 import dev.gradleplugins.buildscript.ast.expressions.GroovyDslLiteral;
 import dev.gradleplugins.buildscript.ast.expressions.InfixExpression;
-import dev.gradleplugins.buildscript.ast.expressions.InstanceOfExpression;
 import dev.gradleplugins.buildscript.ast.expressions.ItExpression;
 import dev.gradleplugins.buildscript.ast.expressions.LambdaExpression;
 import dev.gradleplugins.buildscript.ast.expressions.LiteralExpression;
@@ -31,6 +30,7 @@ import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringInterpolationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.TernaryExpression;
+import dev.gradleplugins.buildscript.ast.expressions.TypeComparisonExpression;
 import dev.gradleplugins.buildscript.ast.expressions.TypeExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarator;
@@ -70,6 +70,11 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
                 throw new UnsupportedOperationException();
             }
         }));
+    }
+
+    @Override
+    default Expression visit(TypeComparisonExpression expression) {
+        return new TypeComparisonExpression(expression.getComparisonType(), expression.getExpression().accept(this), expression.getInstanceType());
     }
 
     @Override
@@ -179,11 +184,6 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
     @Override
     default Expression visit(ClassLiteralExpression expression) {
         return expression;
-    }
-
-    @Override
-    default Expression visit(InstanceOfExpression expression) {
-        return new InstanceOfExpression(expression.getExpression().accept(this), expression.getInstanceType());
     }
 
     @Override

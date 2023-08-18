@@ -4,11 +4,11 @@ import dev.gradleplugins.buildscript.ast.expressions.CastingExpression;
 import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.expressions.InfixExpression;
-import dev.gradleplugins.buildscript.ast.expressions.InstanceOfExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression;
 import dev.gradleplugins.buildscript.ast.expressions.PrefixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.PropertyAccessExpression;
 import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
+import dev.gradleplugins.buildscript.ast.expressions.TypeComparisonExpression;
 import dev.gradleplugins.buildscript.ast.statements.BlockStatement;
 import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
 import dev.gradleplugins.buildscript.ast.type.ReferenceType;
@@ -61,12 +61,12 @@ public final class ExpressionBuilder<T extends Expression> implements Expression
         return new ExpressionBuilder<>(new MethodCallExpression(thiz, Arrays.asList(arguments)));
     }
 
-    public ExpressionBuilder<InstanceOfExpression> instanceOf(ReferenceType type) {
-        return new ExpressionBuilder<>(new InstanceOfExpression(thiz, type));
+    public ExpressionBuilder<TypeComparisonExpression> instanceOf(ReferenceType type) {
+        return new ExpressionBuilder<>(new TypeComparisonExpression(TypeComparisonExpression.ComparisonType.INSTANCE_OF, thiz, type));
     }
 
-    public ExpressionBuilder<InstanceOfExpression> instanceOf(Class<?> type) {
-        return new ExpressionBuilder<>(new InstanceOfExpression(thiz, new ReferenceType(type.getCanonicalName())));
+    public ExpressionBuilder<TypeComparisonExpression> instanceOf(Class<?> type) {
+        return new ExpressionBuilder<>(new TypeComparisonExpression(TypeComparisonExpression.ComparisonType.INSTANCE_OF, thiz, new ReferenceType(type.getCanonicalName())));
     }
 
     public GradleBlockStatement block(Consumer<? super BlockStatement.Builder<?>> configureAction) {
