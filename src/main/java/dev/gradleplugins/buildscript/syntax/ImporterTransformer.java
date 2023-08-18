@@ -6,7 +6,6 @@ import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.expressions.TypeExpression;
 import dev.gradleplugins.buildscript.ast.statements.ImportDeclaration;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
-import dev.gradleplugins.buildscript.ast.statements.TypeImportDeclaration;
 import dev.gradleplugins.buildscript.ast.type.ParameterizedType;
 import dev.gradleplugins.buildscript.ast.type.ReferenceType;
 import dev.gradleplugins.buildscript.ast.type.Type;
@@ -58,7 +57,7 @@ public final class ImporterTransformer implements ASTTransformer {
         }
 
         public List<ImportDeclaration> getImportDeclarations() {
-            return imports.stream().map(Object::toString).map(TypeImportDeclaration::new).collect(Collectors.toList());
+            return imports.stream().map(Object::toString).map(it -> new ImportDeclaration(ImportDeclaration.ImportType.TYPE, it)).collect(Collectors.toList());
         }
     }
 }

@@ -14,8 +14,8 @@ import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
 import dev.gradleplugins.buildscript.ast.statements.AssertStatement;
 import dev.gradleplugins.buildscript.ast.statements.CommentedStatement;
+import dev.gradleplugins.buildscript.ast.statements.ImportDeclaration;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
-import dev.gradleplugins.buildscript.ast.statements.TypeImportDeclaration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,8 +71,8 @@ public interface Syntax {
         return new AssertStatement(expression, null);
     }
 
-    static TypeImportDeclaration importClass(Class<?> type) {
-        return new TypeImportDeclaration(type.getCanonicalName());
+    static ImportDeclaration importClass(Class<?> type) {
+        return new ImportDeclaration(ImportDeclaration.ImportType.TYPE, type.getCanonicalName());
     }
 
     static ExpressionBuilder<PropertyAccessExpression> extensionOf(String extensionName) {

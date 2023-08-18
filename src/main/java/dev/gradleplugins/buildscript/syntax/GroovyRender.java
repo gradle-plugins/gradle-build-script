@@ -35,10 +35,9 @@ import dev.gradleplugins.buildscript.ast.statements.CommentedStatement;
 import dev.gradleplugins.buildscript.ast.statements.ExpressionStatement;
 import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
 import dev.gradleplugins.buildscript.ast.statements.GroupStatement;
+import dev.gradleplugins.buildscript.ast.statements.ImportDeclaration;
 import dev.gradleplugins.buildscript.ast.statements.MultiStatement;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
-import dev.gradleplugins.buildscript.ast.statements.StaticImportDeclaration;
-import dev.gradleplugins.buildscript.ast.statements.TypeImportDeclaration;
 import dev.gradleplugins.buildscript.blocks.ApplyStatement;
 import dev.gradleplugins.buildscript.blocks.PluginsDslBlock;
 import dev.gradleplugins.buildscript.syntax.Syntax.Content;
@@ -138,12 +137,12 @@ public final class GroovyRender implements RenderableSyntax.Renderer {
             return Content.of(builder.toString());
         }
 
-        public Content visit(TypeImportDeclaration statement) {
-            return Content.of("import " + statement.getName());
-        }
-
-        public Content visit(StaticImportDeclaration statement) {
-            return Content.of("import static " + statement.getName());
+        public Content visit(ImportDeclaration statement) {
+            switch (statement.getImportType()) {
+                case STATIC: return Content.of("import static " + statement.getName());
+                case TYPE: return Content.of("import " + statement.getName());
+                default: throw invalidLanguageNode();
+            }
         }
 
         public Content visit(MethodCallExpression expression) {

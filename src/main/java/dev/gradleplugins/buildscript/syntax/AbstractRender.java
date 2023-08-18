@@ -38,10 +38,9 @@ import dev.gradleplugins.buildscript.ast.statements.CommentedStatement;
 import dev.gradleplugins.buildscript.ast.statements.ExpressionStatement;
 import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
 import dev.gradleplugins.buildscript.ast.statements.GroupStatement;
+import dev.gradleplugins.buildscript.ast.statements.ImportDeclaration;
 import dev.gradleplugins.buildscript.ast.statements.MultiStatement;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
-import dev.gradleplugins.buildscript.ast.statements.StaticImportDeclaration;
-import dev.gradleplugins.buildscript.ast.statements.TypeImportDeclaration;
 import dev.gradleplugins.buildscript.blocks.PluginsDslBlock;
 
 public class AbstractRender implements Statement.Visitor<Syntax.Content>, Expression.Visitor<Syntax.Content> {
@@ -211,12 +210,7 @@ public class AbstractRender implements Statement.Visitor<Syntax.Content>, Expres
     }
 
     @Override
-    public Syntax.Content visit(TypeImportDeclaration statement) {
-        throw invalidLanguageNode();
-    }
-
-    @Override
-    public Syntax.Content visit(StaticImportDeclaration statement) {
+    public Syntax.Content visit(ImportDeclaration statement) {
         throw invalidLanguageNode();
     }
 

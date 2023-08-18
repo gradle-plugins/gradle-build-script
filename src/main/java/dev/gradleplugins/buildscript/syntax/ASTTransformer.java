@@ -40,10 +40,9 @@ import dev.gradleplugins.buildscript.ast.statements.CommentedStatement;
 import dev.gradleplugins.buildscript.ast.statements.ExpressionStatement;
 import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
 import dev.gradleplugins.buildscript.ast.statements.GroupStatement;
+import dev.gradleplugins.buildscript.ast.statements.ImportDeclaration;
 import dev.gradleplugins.buildscript.ast.statements.MultiStatement;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
-import dev.gradleplugins.buildscript.ast.statements.StaticImportDeclaration;
-import dev.gradleplugins.buildscript.ast.statements.TypeImportDeclaration;
 import dev.gradleplugins.buildscript.blocks.PluginsDslBlock;
 
 import java.util.LinkedHashMap;
@@ -70,6 +69,11 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
                 throw new UnsupportedOperationException();
             }
         }));
+    }
+
+    @Override
+    default Statement visit(ImportDeclaration statement) {
+        return statement;
     }
 
     @Override
@@ -240,16 +244,6 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
     @Override
     default Statement visit(GroupStatement statement) {
         return new GroupStatement(StreamSupport.stream(statement.spliterator(), false).map(it -> it.accept(this)).collect(Collectors.toList()));
-    }
-
-    @Override
-    default Statement visit(TypeImportDeclaration statement) {
-        return statement;
-    }
-
-    @Override
-    default Statement visit(StaticImportDeclaration statement) {
-        return statement;
     }
 
     @Override
