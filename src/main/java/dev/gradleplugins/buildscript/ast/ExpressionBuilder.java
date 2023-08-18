@@ -1,14 +1,12 @@
 package dev.gradleplugins.buildscript.ast;
 
-import dev.gradleplugins.buildscript.ast.expressions.AssignExpression;
-import dev.gradleplugins.buildscript.ast.expressions.AssignmentExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CastExpression;
 import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.expressions.InfixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.InstanceOfExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression;
-import dev.gradleplugins.buildscript.ast.expressions.NotExpression;
+import dev.gradleplugins.buildscript.ast.expressions.PrefixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.PropertyAccessExpression;
 import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
 import dev.gradleplugins.buildscript.ast.statements.BlockStatement;
@@ -75,6 +73,7 @@ public final class ExpressionBuilder<T extends Expression> implements Expression
         return GradleBlockStatement.block(this, configureAction);
     }
 
+    // TODO: Maybe we should take Expression and convert it into the proper unified expression
     public ExpressionBuilder<QualifiedExpression> dot(String name) {
         return new ExpressionBuilder<>(new QualifiedExpression(thiz, literal(name)));
     }
@@ -87,8 +86,8 @@ public final class ExpressionBuilder<T extends Expression> implements Expression
         return new ExpressionBuilder<>(new InfixExpression(thiz, InfixExpression.Operator.EqualTo, expression));
     }
 
-    public ExpressionBuilder<NotExpression> negate() {
-        return new ExpressionBuilder<>(new NotExpression(thiz));
+    public ExpressionBuilder<PrefixExpression> negate() {
+        return new ExpressionBuilder<>(new PrefixExpression(PrefixExpression.Not, thiz));
     }
 
     public ExpressionBuilder<InfixExpression> plus(Expression expression) {
@@ -104,6 +103,6 @@ public final class ExpressionBuilder<T extends Expression> implements Expression
     }
 
     public ExpressionBuilder<Expression> assign(Expression expression) {
-        return new ExpressionBuilder<>(new AssignExpression(thiz, expression));
+        return new ExpressionBuilder<>(new InfixExpression(thiz, InfixExpression.Operator.Assignment, expression));
     }
 }

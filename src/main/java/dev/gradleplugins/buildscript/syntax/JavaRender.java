@@ -2,7 +2,6 @@ package dev.gradleplugins.buildscript.syntax;
 
 import dev.gradleplugins.buildscript.ast.Node;
 import dev.gradleplugins.buildscript.ast.comments.Comment;
-import dev.gradleplugins.buildscript.ast.expressions.AssignExpression;
 import dev.gradleplugins.buildscript.ast.expressions.AssignmentExpression;
 import dev.gradleplugins.buildscript.ast.expressions.BooleanLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CastExpression;
@@ -16,8 +15,9 @@ import dev.gradleplugins.buildscript.ast.expressions.InstanceOfExpression;
 import dev.gradleplugins.buildscript.ast.expressions.LiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MapLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression;
-import dev.gradleplugins.buildscript.ast.expressions.NotExpression;
 import dev.gradleplugins.buildscript.ast.expressions.NullLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.PostfixExpression;
+import dev.gradleplugins.buildscript.ast.expressions.PrefixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.TernaryExpression;
@@ -166,11 +166,6 @@ public final class JavaRender implements RenderableSyntax.Renderer {
         }
 
         @Override
-        public Content visit(NotExpression expression) {
-            return Content.of("!" + render(expression.getExpression()));
-        }
-
-        @Override
         public Content visit(TypeExpression expression) {
             return Content.of(expression.getType().toString());
         }
@@ -188,10 +183,6 @@ public final class JavaRender implements RenderableSyntax.Renderer {
             }
             builder.append(render(expression.getRightExpression()));
             return Content.of(builder.toString());
-        }
-
-        public Content visit(AssignExpression expression) {
-            return Content.of(render(expression.getTarget()) + " = " + render(expression.getValue()));
         }
 
         public Content visit(GradleBlockStatement statement) {
@@ -214,6 +205,16 @@ public final class JavaRender implements RenderableSyntax.Renderer {
         @Override
         public Content visit(TernaryExpression expression) {
             return Content.of(render(expression.getCondition()) + " ? " + render(expression.getTrueExpression()) + " : " + render(expression.getFalseExpression()));
+        }
+
+        @Override
+        public Content visit(PrefixExpression expression) {
+            return Content.of(expression.getOperator() + render(expression.getExpression()));
+        }
+
+        @Override
+        public Content visit(PostfixExpression expression) {
+            return Content.of(render(expression.getExpression()) + expression.getOperator());
         }
     }
 }

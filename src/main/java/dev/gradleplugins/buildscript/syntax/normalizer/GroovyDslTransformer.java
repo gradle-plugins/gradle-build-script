@@ -3,9 +3,12 @@ package dev.gradleplugins.buildscript.syntax.normalizer;
 import dev.gradleplugins.buildscript.GroovyDslLexer;
 import dev.gradleplugins.buildscript.GroovyDslParser;
 import dev.gradleplugins.buildscript.GroovyDslParserBaseVisitor;
+import dev.gradleplugins.buildscript.ast.Modifier;
 import dev.gradleplugins.buildscript.ast.expressions.AsExpression;
-import dev.gradleplugins.buildscript.ast.expressions.AssignExpression;
+import dev.gradleplugins.buildscript.ast.expressions.AssignmentExpression;
+import dev.gradleplugins.buildscript.ast.expressions.BooleanLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CollectionLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.expressions.GroovyDslLiteral;
 import dev.gradleplugins.buildscript.ast.expressions.InfixExpression;
@@ -13,16 +16,19 @@ import dev.gradleplugins.buildscript.ast.expressions.InstanceOfExpression;
 import dev.gradleplugins.buildscript.ast.expressions.LambdaExpression;
 import dev.gradleplugins.buildscript.ast.expressions.LiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression;
-import dev.gradleplugins.buildscript.ast.expressions.NotExpression;
 import dev.gradleplugins.buildscript.ast.expressions.NullLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.PrefixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SafeNavigationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringInterpolationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarationExpression;
+import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarator;
 import dev.gradleplugins.buildscript.ast.statements.ExpressionStatement;
 import dev.gradleplugins.buildscript.ast.statements.MultiStatement;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
+import dev.gradleplugins.buildscript.ast.type.DefType;
 import dev.gradleplugins.buildscript.ast.type.ReferenceType;
 import dev.gradleplugins.buildscript.ast.type.Type;
 import dev.gradleplugins.buildscript.syntax.ASTTransformer;
@@ -47,11 +53,6 @@ public final class GroovyDslTransformer implements ASTTransformer {
         protected T defaultResult() {
             return null;
         }
-
-//        @Override
-//        protected boolean shouldVisitNextChild(RuleNode node, T currentResult) {
-//            return currentResult == null;
-//        }
 
         @Override
         public T visitChildren(RuleNode node) {
@@ -91,24 +92,27 @@ public final class GroovyDslTransformer implements ASTTransformer {
             }
 
             @Override
-            public Expression visitPrefixUnaryExpression(GroovyDslParser.PrefixUnaryExpressionContext ctx) {
-                Expression result = ctx.postfixUnaryExpression().accept(this);
-                for (GroovyDslParser.UnaryPrefixContext prefix : ctx.unaryPrefix()) {
-                    if (prefix.prefixUnaryOperator() != null && prefix.prefixUnaryOperator().excl() != null) {
-                        result = new NotExpression(result);
-                    } else {
-                        throw new UnsupportedOperationException();
-                    }
-                }
-                return result;
+            public Expression visitParenthesizedExpression(GroovyDslParser.ParenthesizedExpressionContext ctx) {
+                return new EnclosedExpression(ctx.expression().accept(this));
             }
 
             @Override
-            public Expression visitConjunction(GroovyDslParser.ConjunctionContext ctx) {
-                assert ctx.equality().size() > 0; // should always be the case
-                Expression result = ctx.equality(0).accept(this);
-                for (int i = 1; i < ctx.equality().size(); i++) {
-                    result = new InfixExpression(result, InfixExpression.Operator.And, ctx.equality(i).accept(this));
+            public Expression visitPrefixUnaryExpression(GroovyDslParser.PrefixUnaryExpressionContext ctx) {
+                final Base<InfixExpression.Operator> visitor = new Base<InfixExpression.Operator>() {
+                    @Override
+                    public InfixExpression.Operator visitPrefixUnaryOperator(GroovyDslParser.PrefixUnaryOperatorContext ctx) {
+                        switch (ctx.getText().trim()) {
+                            case "--": return PrefixExpression.Decrement;
+                            case "++": return PrefixExpression.Increment;
+                            case "!": return PrefixExpression.Not;
+                            default: throw new UnsupportedOperationException();
+                        }
+                    }
+                };
+
+                Expression result = ctx.postfixUnaryExpression().accept(this);
+                for (int i = ctx.unaryPrefix().size() - 1; i >= 0; --i) {
+                    result = new PrefixExpression(ctx.unaryPrefix(i).accept(visitor), result);
                 }
                 return result;
             }
@@ -117,6 +121,8 @@ public final class GroovyDslTransformer implements ASTTransformer {
             public Expression visitLiteralConstant(GroovyDslParser.LiteralConstantContext ctx) {
                 if (ctx.NullLiteral() != null) {
                     return new NullLiteralExpression();
+                } else if (ctx.BooleanLiteral() != null) {
+                    return new BooleanLiteralExpression(Boolean.parseBoolean(ctx.BooleanLiteral().getText()));
                 } else {
                     throw new UnsupportedOperationException();
                 }
@@ -192,33 +198,47 @@ public final class GroovyDslTransformer implements ASTTransformer {
             }
             //endregion
 
+            @Override
+            public Expression visitConjunction(GroovyDslParser.ConjunctionContext ctx) {
+                Expression result = ctx.equality(0).accept(this);
+                for (int i = 1; i < ctx.equality().size(); ++i) {
+                    result = new InfixExpression(result, InfixExpression.Operator.And, ctx.equality(i).accept(this));
+                }
+                return result;
+            }
+
+            @Override
+            public Expression visitDisjunction(GroovyDslParser.DisjunctionContext ctx) {
+                Expression result = ctx.conjunction(0).accept(this);
+                for (int i = 1; i < ctx.conjunction().size(); ++i) {
+                    result = new InfixExpression(result, InfixExpression.Operator.Or, ctx.conjunction(i).accept(this));
+                }
+                return result;
+            }
 
             @Override
             public Expression visitEquality(GroovyDslParser.EqualityContext ctx) {
-                if (ctx.equalityRightSide().isEmpty()) {
-                    return super.visitEquality(ctx); // not equality
-                }
-
-                final Base<PostfixUnarySuffixExpression> visitor = new Base<PostfixUnarySuffixExpression>() {
+                Base<InfixExpression.Operator> visitor = new Base<InfixExpression.Operator>() {
                     @Override
-                    public PostfixUnarySuffixExpression visitEqualityRightSide(GroovyDslParser.EqualityRightSideContext ctx) {
-                        assert ctx.equalityOperator().getText().equals("==");
-                        final InfixExpression.Operator operator = InfixExpression.Operator.EqualTo;
-                        final Expression rightExpression = ctx.comparison().accept(ExpressionVisitor.this);
-                        return new PostfixUnarySuffixExpression() {
-                            @Override
-                            public Expression withObjectExpression(Expression objectExpression) {
-                                return new InfixExpression(objectExpression, operator, rightExpression);
-                            }
-                        };
+                    public InfixExpression.Operator visitEqualityOperator(GroovyDslParser.EqualityOperatorContext ctx) {
+                        switch (ctx.getText()) {
+                            case "==": return InfixExpression.Operator.EqualTo;
+                            case "!=": return InfixExpression.Operator.NotEqualTo;
+                            default: throw new UnsupportedOperationException();
+                        }
                     }
                 };
 
-                Expression result = ctx.comparison().accept(ExpressionVisitor.this);
-                for (GroovyDslParser.EqualityRightSideContext suffix : ctx.equalityRightSide()) {
-                    result = suffix.accept(visitor).withObjectExpression(result);
+                Expression result = ctx.comparison(0).accept(this);
+                for (int i = 1; i < ctx.comparison().size(); ++i) {
+                    result = new InfixExpression(result, ctx.equalityOperator(i - 1).accept(visitor), ctx.comparison(i).accept(this));
                 }
                 return result;
+            }
+
+            @Override
+            public Expression visitPropertyDeclaration(GroovyDslParser.PropertyDeclarationContext ctx) {
+                return super.visitPropertyDeclaration(ctx);
             }
 
             @Override
@@ -232,13 +252,15 @@ public final class GroovyDslTransformer implements ASTTransformer {
 
             @Override
             public Expression visitPostfixUnaryExpression(GroovyDslParser.PostfixUnaryExpressionContext ctx) {
-                if (ctx.postfixUnarySuffix().isEmpty()) {
-                    return ExpressionVisitor.super.visitPostfixUnaryExpression(ctx); // not a postfix unary expression
-                }
+                class UnarySuffixVisitor extends Base<Expression> {
+                    private final Expression objectExpression;
 
-                final Base<PostfixUnarySuffixExpression> visitor = new Base<PostfixUnarySuffixExpression>() {
+                    public UnarySuffixVisitor(Expression objectExpression) {
+                        this.objectExpression = objectExpression;
+                    }
+
                     @Override
-                    public PostfixUnarySuffixExpression visitNavigationSuffix(GroovyDslParser.NavigationSuffixContext ctx) {
+                    public Expression visitNavigationSuffix(GroovyDslParser.NavigationSuffixContext ctx) {
                         final String operator = ctx.memberAccessOperator().getText();
                         assert operator.equals(".") || operator.equals("?.");
                         final Expression identifier = ((Supplier<Expression>) () -> {
@@ -249,20 +271,15 @@ public final class GroovyDslTransformer implements ASTTransformer {
                             }
                         }).get();
 
-                        return new PostfixUnarySuffixExpression() {
-                            @Override
-                            public Expression withObjectExpression(Expression objectExpression) {
-                                if (operator.equals(".")) {
-                                    return new QualifiedExpression(objectExpression, identifier);
-                                } else {
-                                    return new SafeNavigationExpression(objectExpression, identifier);
-                                }
-                            }
-                        };
+                        if (operator.equals(".")) {
+                            return new QualifiedExpression(objectExpression, identifier);
+                        } else {
+                            return new SafeNavigationExpression(objectExpression, identifier);
+                        }
                     }
 
                     @Override
-                    public PostfixUnarySuffixExpression visitCallSuffix(GroovyDslParser.CallSuffixContext ctx) {
+                    public Expression visitCallSuffix(GroovyDslParser.CallSuffixContext ctx) {
                         final List<Expression> arguments = ((Supplier<List<Expression>>) () -> {
                             // Note: use mutable list, so we can optionally add annotated lambda
                             if (ctx.valueArguments() == null) {
@@ -276,31 +293,28 @@ public final class GroovyDslTransformer implements ASTTransformer {
                             arguments.add(ctx.annotatedLambda().accept(ExpressionVisitor.this));
                         }
 
-                        return new PostfixUnarySuffixExpression() {
-                            @Override
-                            public Expression withObjectExpression(Expression objectExpression) {
-                                return new MethodCallExpression(objectExpression, arguments);
-                            }
-                        };
+                        return new MethodCallExpression(objectExpression, arguments);
                     }
                 };
 
                 Expression result = ctx.primaryExpression().accept(this);
                 for (GroovyDslParser.PostfixUnarySuffixContext suffix : ctx.postfixUnarySuffix()) {
-                    result = suffix.accept(visitor).withObjectExpression(result);
+                    result = suffix.accept(new UnarySuffixVisitor(result));
                 }
                 return result;
             }
 
             @Override
             public Expression visitInfixOperation(GroovyDslParser.InfixOperationContext ctx) {
-                if (ctx.infixOperationSuffix().isEmpty()) {
-                    return super.visitInfixOperation(ctx); // not an infix operator
-                }
+                class InfixSuffixVisitor extends Base<Expression> {
+                    private final Expression objectExpression;
 
-                final Base<PostfixUnarySuffixExpression> visitor = new Base<PostfixUnarySuffixExpression>() {
+                    public InfixSuffixVisitor(Expression objectExpression) {
+                        this.objectExpression = objectExpression;
+                    }
+
                     @Override
-                    public PostfixUnarySuffixExpression visitInstanceOfOperationSuffix(GroovyDslParser.InstanceOfOperationSuffixContext ctx) {
+                    public Expression visitInstanceOfOperationSuffix(GroovyDslParser.InstanceOfOperationSuffixContext ctx) {
                         final Type userType = ctx.type_().accept(new Base<Type>() {
                             @Override
                             public Type visitUserType(GroovyDslParser.UserTypeContext ctx) {
@@ -312,17 +326,14 @@ public final class GroovyDslTransformer implements ASTTransformer {
                                 return new ReferenceType(ctx.getText());
                             }
                         });
-                        return new PostfixUnarySuffixExpression() {
-                            @Override
-                            public Expression withObjectExpression(Expression objectExpression) {
-                                return new InstanceOfExpression(objectExpression, userType);
-                            }
-                        };
+
+                        return new InstanceOfExpression(objectExpression, userType);
                     }
                 };
+
                 Expression result = ctx.elvisExpression().accept(this);
                 for (GroovyDslParser.InfixOperationSuffixContext suffix : ctx.infixOperationSuffix()) {
-                    result = suffix.accept(visitor).withObjectExpression(result);
+                    result = suffix.accept(new InfixSuffixVisitor(result));
                 }
                 return result;
             }
@@ -339,8 +350,7 @@ public final class GroovyDslTransformer implements ASTTransformer {
 
         @Override
         public Statement visitStatements(GroovyDslParser.StatementsContext ctx) {
-            throw new UnsupportedOperationException();
-//            return MultiStatement.of(ctx.statement().stream().map(it -> it.accept(this)).collect(Collectors.toList()));
+            throw new UnsupportedOperationException(); // handled by buildScript rule
         }
 
         @Override
@@ -351,28 +361,43 @@ public final class GroovyDslTransformer implements ASTTransformer {
         @Override
         public Statement visitAssignment(GroovyDslParser.AssignmentContext ctx) {
             if (ctx.directlyAssignableExpression() != null) {
-                return new ExpressionStatement(new AssignExpression(ctx.directlyAssignableExpression().accept(new ExpressionVisitor()), ctx.expression().accept(new ExpressionVisitor())));
+                return new ExpressionStatement(new InfixExpression(ctx.directlyAssignableExpression().accept(new ExpressionVisitor()), InfixExpression.Operator.Assignment, ctx.expression().accept(new ExpressionVisitor())));
             } else {
                 throw new UnsupportedOperationException();
             }
+        }
+
+        @Override
+        public Statement visitGroovyVariableDeclaration(GroovyDslParser.GroovyVariableDeclarationContext ctx) {
+            Type userType = DefType.defType();
+            if (ctx.type_() != null) {
+                userType = ctx.type_().accept(new Base<Type>() {
+                    @Override
+                    public Type visitUserType(GroovyDslParser.UserTypeContext ctx) {
+                        return super.visitUserType(ctx);
+                    }
+
+                    @Override
+                    public Type visitSimpleIdentifier(GroovyDslParser.SimpleIdentifierContext ctx) {
+                        return new ReferenceType(ctx.getText());
+                    }
+                });
+            }
+
+            List<Modifier> modifiers = new ArrayList<>();
+            if (ctx.FINAL() != null) {
+                modifiers.add(Modifier.finalModifier());
+            }
+
+            Expression initializer = ctx.expression().accept(new ExpressionVisitor());
+            String variableName = ctx.simpleIdentifier().getText();
+            return new ExpressionStatement(new VariableDeclarationExpression(modifiers, userType, Collections.singletonList(new VariableDeclarator(initializer.getType(), variableName, new AssignmentExpression(initializer)))));
         }
     }
 
     @Override
     public Expression visit(GroovyDslLiteral expression) {
-        final String content = String.join("\n", expression);
-
-        GroovyDslLexer lexer = new GroovyDslLexer(CharStreams.fromString(content));
-        lexer.removeErrorListeners();
-
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        GroovyDslParser parser = new GroovyDslParser(tokens);
-        parser.removeErrorListeners();
-
-//        System.out.println(parser.script().getText());
-//        System.out.println(parser.script().statement());
-//        System.out.println(parser.script().statement().get(0).getText());
-        Statement result = parser.buildScript().accept(new BaseVisitor());
+        Statement result = parse(expression);
         if (result instanceof ExpressionStatement) {
             return ((ExpressionStatement) result).getExpression();
         }
@@ -382,23 +407,21 @@ public final class GroovyDslTransformer implements ASTTransformer {
     @Override
     public Statement visit(ExpressionStatement statement) {
         if (statement.getExpression() instanceof GroovyDslLiteral) {
-            GroovyDslLiteral expression = (GroovyDslLiteral) statement.getExpression();
-
-            final String content = String.join("\n", expression);
-
-            GroovyDslLexer lexer = new GroovyDslLexer(CharStreams.fromString(content));
-            lexer.removeErrorListeners();
-
-            CommonTokenStream tokens = new CommonTokenStream(lexer);
-            GroovyDslParser parser = new GroovyDslParser(tokens);
-            parser.removeErrorListeners();
-
-//        System.out.println(parser.script().getText());
-//        System.out.println(parser.script().statement());
-//        System.out.println(parser.script().statement().get(0).getText());
-            Statement result = parser.buildScript().accept(new BaseVisitor());
-            return result;
+            return parse((GroovyDslLiteral) statement.getExpression());
         }
         return ASTTransformer.super.visit(statement);
+    }
+
+    private Statement parse(GroovyDslLiteral expression) {
+        final String content = String.join("\n", expression);
+
+        GroovyDslLexer lexer = new GroovyDslLexer(CharStreams.fromString(content));
+        lexer.removeErrorListeners();
+
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        GroovyDslParser parser = new GroovyDslParser(tokens);
+        parser.removeErrorListeners();
+
+        return parser.buildScript().accept(new BaseVisitor());
     }
 }

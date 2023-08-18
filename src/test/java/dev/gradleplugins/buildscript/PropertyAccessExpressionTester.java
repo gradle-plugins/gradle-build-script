@@ -1,6 +1,6 @@
 package dev.gradleplugins.buildscript;
 
-import dev.gradleplugins.buildscript.ast.expressions.AssignExpression;
+import dev.gradleplugins.buildscript.ast.expressions.InfixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression;
 import dev.gradleplugins.buildscript.ast.expressions.PropertyAccessExpression;
 import dev.gradleplugins.buildscript.syntax.Syntax;
@@ -29,7 +29,7 @@ public interface PropertyAccessExpressionTester {
     @Test
     default void testPlainPropertyAssign() {
         assertEquals(expectedPlainProperty__myVar_setFoo__to__bar_string(),
-                new AssignExpression(new PropertyAccessExpression(unknownType(), PropertyAccessExpression.AccessType.PLAIN, literal("myVar"), "foo"), string("bar")).toString(syntax()));
+                new InfixExpression(new PropertyAccessExpression(unknownType(), PropertyAccessExpression.AccessType.PLAIN, literal("myVar"), "foo"), InfixExpression.Operator.Assignment, string("bar")).toString(syntax()));
     }
 
     String expectedPlainProperty__myVar_setFoo__to__bar_string();
@@ -45,7 +45,7 @@ public interface PropertyAccessExpressionTester {
     @Test
     default void testPlainPropertyBooleanAssign() {
         assertEquals(expectedPlainProperty__myVar_setFoo__to__true_boolean(),
-                new AssignExpression(new PropertyAccessExpression(booleanType(), PropertyAccessExpression.AccessType.PLAIN, literal("myVar"), "foo"), bool(true)).toString(syntax()));
+                new InfixExpression(new PropertyAccessExpression(booleanType(), PropertyAccessExpression.AccessType.PLAIN, literal("myVar"), "foo"), InfixExpression.Operator.Assignment, bool(true)).toString(syntax()));
     }
 
     String expectedPlainProperty__myVar_setFoo__to__true_boolean();
@@ -64,7 +64,7 @@ public interface PropertyAccessExpressionTester {
     @Test
     default void testFieldPropertyAssign() {
         assertEquals(expectedFieldProperty__myVar_foo__assign__bar_string(),
-                new AssignExpression(new PropertyAccessExpression(unknownType(), PropertyAccessExpression.AccessType.FIELD, literal("myVar"), "foo"), string("bar")).toString(syntax()));
+                new InfixExpression(new PropertyAccessExpression(unknownType(), PropertyAccessExpression.AccessType.FIELD, literal("myVar"), "foo"), InfixExpression.Operator.Assignment, string("bar")).toString(syntax()));
     }
 
     String expectedFieldProperty__myVar_foo__assign__bar_string();
@@ -83,7 +83,7 @@ public interface PropertyAccessExpressionTester {
     @Test
     default void testExtraPropertyAssign() {
         assertEquals(expectedExtraProperty__myVar_foo__setTo__bar_string(),
-                new AssignExpression(new PropertyAccessExpression(unknownType(), PropertyAccessExpression.AccessType.EXTRA, literal("myVar"), "foo"), string("bar")).toString(syntax()));
+                new InfixExpression(new PropertyAccessExpression(unknownType(), PropertyAccessExpression.AccessType.EXTRA, literal("myVar"), "foo"), InfixExpression.Operator.Assignment, string("bar")).toString(syntax()));
     }
 
     String expectedExtraProperty__myVar_foo__setTo__bar_string();

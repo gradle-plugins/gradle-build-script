@@ -177,6 +177,9 @@ companionObject
     (NL* classBody)?
     ;
 
+groovyVariableDeclaration
+    : 'final'? ('def' | type_) simpleIdentifier ('=' expression)?;
+
 propertyDeclaration
     : modifiers? ('val' | 'var')
     (NL* typeParameters)?
@@ -323,6 +326,7 @@ declaration
     | objectDeclaration
     | functionDeclaration
     | propertyDeclaration
+    | groovyVariableDeclaration
     | typeAlias
     ;
 
@@ -352,11 +356,7 @@ conjunction
     ;
 
 equality
-    : comparison (/* NO NL! */ equalityRightSide)*
-    ;
-
-equalityRightSide
-    : equalityOperator NL* comparison
+    : comparison (/* NO NL! */ equalityOperator NL* comparison)*
     ;
 
 comparison
@@ -710,7 +710,7 @@ inOperator
     ;
 
 isOperator
-    : 'instanceof'
+    : 'is' | NOT_IS | 'instanceof'
     ;
 
 additiveOperator

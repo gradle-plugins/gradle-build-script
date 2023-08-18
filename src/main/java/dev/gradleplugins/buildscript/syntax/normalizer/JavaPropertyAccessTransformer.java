@@ -1,8 +1,8 @@
 package dev.gradleplugins.buildscript.syntax.normalizer;
 
-import dev.gradleplugins.buildscript.ast.expressions.AssignExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.expressions.FieldAccessExpression;
+import dev.gradleplugins.buildscript.ast.expressions.InfixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression;
 import dev.gradleplugins.buildscript.ast.expressions.PropertyAccessExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
@@ -53,11 +53,11 @@ public final class JavaPropertyAccessTransformer implements ASTTransformer {
     }
 
     @Override
-    public Expression visit(AssignExpression expression) {
-        if (expression.getTarget() instanceof PropertyAccessExpression) {
-            final PropertyAccessExpression target = (PropertyAccessExpression) expression.getTarget();
+    public Expression visit(InfixExpression expression) {
+        if (expression.getOperator().equals(InfixExpression.Operator.Assignment) && expression.getLeftExpression() instanceof PropertyAccessExpression) {
+            final PropertyAccessExpression target = (PropertyAccessExpression) expression.getLeftExpression();
             final Expression objectExpression = target.getObjectExpression();
-            final Expression valueExpression = expression.getValue();
+            final Expression valueExpression = expression.getRightExpression();
             if (target.getAccessType().equals(PropertyAccessExpression.AccessType.PLAIN)) {
                 return new MethodCallExpression(objectExpression, "set" + capitalize(target.getPropertyName()), Collections.singletonList(valueExpression)).accept(this);
             } else if (target.getAccessType().equals(PropertyAccessExpression.AccessType.EXTRA)) {

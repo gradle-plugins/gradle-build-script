@@ -28,8 +28,4 @@ public final class FieldAccessExpression implements Expression {
     public String getName() {
         return name;
     }
-
-    public AssignExpression assign(Expression value) {
-        return new AssignExpression(this, value);
-    }
 }

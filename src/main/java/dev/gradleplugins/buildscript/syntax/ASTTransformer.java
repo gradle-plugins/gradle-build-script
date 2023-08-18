@@ -5,7 +5,6 @@ import dev.gradleplugins.buildscript.ast.body.ClassDeclaration;
 import dev.gradleplugins.buildscript.ast.comments.Comment;
 import dev.gradleplugins.buildscript.ast.comments.LineComment;
 import dev.gradleplugins.buildscript.ast.expressions.AsExpression;
-import dev.gradleplugins.buildscript.ast.expressions.AssignExpression;
 import dev.gradleplugins.buildscript.ast.expressions.AssignmentExpression;
 import dev.gradleplugins.buildscript.ast.expressions.BooleanLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CastExpression;
@@ -23,8 +22,9 @@ import dev.gradleplugins.buildscript.ast.expressions.LambdaExpression;
 import dev.gradleplugins.buildscript.ast.expressions.LiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MapLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression;
-import dev.gradleplugins.buildscript.ast.expressions.NotExpression;
 import dev.gradleplugins.buildscript.ast.expressions.NullLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.PostfixExpression;
+import dev.gradleplugins.buildscript.ast.expressions.PrefixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.PropertyAccessExpression;
 import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SafeAsExpression;
@@ -72,6 +72,16 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
                 throw new UnsupportedOperationException();
             }
         }));
+    }
+
+    @Override
+    default Expression visit(PrefixExpression expression) {
+        return new PrefixExpression(expression.getOperator(), expression.getExpression().accept(this));
+    }
+
+    @Override
+    default Expression visit(PostfixExpression expression) {
+        return new PostfixExpression(expression.getExpression().accept(this), expression.getOperator());
     }
 
     @Override
@@ -189,11 +199,6 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
     }
 
     @Override
-    default Expression visit(NotExpression expression) {
-        return new NotExpression(expression.getExpression().accept(this));
-    }
-
-    @Override
     default Expression visit(CurrentScopeExpression expression) {
         return expression;
     }
@@ -201,11 +206,6 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
     @Override
     default Expression visit(VariableDeclarationExpression expression) {
         return new VariableDeclarationExpression(expression.getModifiers(), expression.getType(), expression.getVariables().stream().map(it -> (VariableDeclarator) it.accept(this)).collect(Collectors.toList()));
-    }
-
-    @Override
-    default Expression visit(AssignExpression expression) {
-        return new AssignExpression(expression.getTarget().accept(this), expression.getValue().accept(this));
     }
 
     @Override
