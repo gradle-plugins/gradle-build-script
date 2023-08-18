@@ -4,10 +4,9 @@ import dev.gradleplugins.buildscript.ast.Node;
 import dev.gradleplugins.buildscript.ast.body.ClassDeclaration;
 import dev.gradleplugins.buildscript.ast.comments.Comment;
 import dev.gradleplugins.buildscript.ast.comments.LineComment;
-import dev.gradleplugins.buildscript.ast.expressions.AsExpression;
 import dev.gradleplugins.buildscript.ast.expressions.AssignmentExpression;
 import dev.gradleplugins.buildscript.ast.expressions.BooleanLiteralExpression;
-import dev.gradleplugins.buildscript.ast.expressions.CastExpression;
+import dev.gradleplugins.buildscript.ast.expressions.CastingExpression;
 import dev.gradleplugins.buildscript.ast.expressions.ClassLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CollectionLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression;
@@ -27,7 +26,6 @@ import dev.gradleplugins.buildscript.ast.expressions.PostfixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.PrefixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.PropertyAccessExpression;
 import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
-import dev.gradleplugins.buildscript.ast.expressions.SafeAsExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SafeNavigationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringInterpolationExpression;
@@ -75,6 +73,11 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
     }
 
     @Override
+    default Expression visit(CastingExpression expression) {
+        return new CastingExpression(expression.getCastingType(), expression.getType(), expression.getExpression().accept(this));
+    }
+
+    @Override
     default Expression visit(PrefixExpression expression) {
         return new PrefixExpression(expression.getOperator(), expression.getExpression().accept(this));
     }
@@ -92,11 +95,6 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
     @Override
     default Expression visit(SafeNavigationExpression expression) {
         return new SafeNavigationExpression(expression.getObjectExpression().accept(this), expression.getPropertyExpression().accept(this));
-    }
-
-    @Override
-    default Expression visit(SafeAsExpression expression) {
-        return new SafeAsExpression(expression.getType(), expression.getExpression().accept(this));
     }
 
     @Override
@@ -147,11 +145,6 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
     @Override
     default Expression visit(LiteralExpression expression) {
         return expression;
-    }
-
-    @Override
-    default Expression visit(CastExpression expression) {
-        return new CastExpression(expression.getType(), expression.getExpression().accept(this));
     }
 
     @Override
@@ -211,11 +204,6 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
     @Override
     default Expression visit(TypeExpression expression) {
         return expression;
-    }
-
-    @Override
-    default Expression visit(AsExpression expression) {
-        return new AsExpression(expression.getType(), expression.getExpression().accept(this));
     }
 
 

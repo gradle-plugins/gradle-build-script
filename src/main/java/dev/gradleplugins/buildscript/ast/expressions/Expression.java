@@ -27,9 +27,7 @@ public interface Expression extends Node {
         ReturnType visit(NullLiteralExpression expression);
         ReturnType visit(PropertyAccessExpression expression);
         ReturnType visit(LiteralExpression expression);
-        ReturnType visit(CastExpression expression);
-        ReturnType visit(AsExpression expression);
-        ReturnType visit(SafeAsExpression expression);
+        ReturnType visit(CastingExpression expression);
         ReturnType visit(SetLiteralExpression expression);
         ReturnType visit(StringLiteralExpression expression);
         ReturnType visit(StringInterpolationExpression expression);

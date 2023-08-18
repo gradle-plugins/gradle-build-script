@@ -2,10 +2,9 @@ package dev.gradleplugins.buildscript.syntax;
 
 import dev.gradleplugins.buildscript.ast.body.ClassDeclaration;
 import dev.gradleplugins.buildscript.ast.comments.LineComment;
-import dev.gradleplugins.buildscript.ast.expressions.AsExpression;
 import dev.gradleplugins.buildscript.ast.expressions.AssignmentExpression;
 import dev.gradleplugins.buildscript.ast.expressions.BooleanLiteralExpression;
-import dev.gradleplugins.buildscript.ast.expressions.CastExpression;
+import dev.gradleplugins.buildscript.ast.expressions.CastingExpression;
 import dev.gradleplugins.buildscript.ast.expressions.ClassLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CollectionLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression;
@@ -25,7 +24,6 @@ import dev.gradleplugins.buildscript.ast.expressions.PostfixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.PrefixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.PropertyAccessExpression;
 import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
-import dev.gradleplugins.buildscript.ast.expressions.SafeAsExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SafeNavigationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringInterpolationExpression;
@@ -79,21 +77,6 @@ public class AbstractRender implements Statement.Visitor<Syntax.Content>, Expres
 
     @Override
     public Syntax.Content visit(LiteralExpression expression) {
-        throw invalidLanguageNode();
-    }
-
-    @Override
-    public Syntax.Content visit(CastExpression expression) {
-        throw invalidLanguageNode();
-    }
-
-    @Override
-    public Syntax.Content visit(AsExpression expression) {
-        throw invalidLanguageNode();
-    }
-
-    @Override
-    public Syntax.Content visit(SafeAsExpression expression) {
         throw invalidLanguageNode();
     }
 
@@ -159,6 +142,11 @@ public class AbstractRender implements Statement.Visitor<Syntax.Content>, Expres
 
     @Override
     public Syntax.Content visit(PostfixExpression expression) {
+        throw invalidLanguageNode();
+    }
+
+    @Override
+    public Syntax.Content visit(CastingExpression expression) {
         throw invalidLanguageNode();
     }
 
@@ -264,7 +252,7 @@ public class AbstractRender implements Statement.Visitor<Syntax.Content>, Expres
         return builder.build();
     }
 
-    private static RuntimeException invalidLanguageNode() {
+    protected static RuntimeException invalidLanguageNode() {
         return new UnsupportedOperationException("Not a valid node for this language");
     }
 }

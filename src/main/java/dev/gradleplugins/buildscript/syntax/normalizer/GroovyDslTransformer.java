@@ -4,9 +4,9 @@ import dev.gradleplugins.buildscript.GroovyDslLexer;
 import dev.gradleplugins.buildscript.GroovyDslParser;
 import dev.gradleplugins.buildscript.GroovyDslParserBaseVisitor;
 import dev.gradleplugins.buildscript.ast.Modifier;
-import dev.gradleplugins.buildscript.ast.expressions.AsExpression;
 import dev.gradleplugins.buildscript.ast.expressions.AssignmentExpression;
 import dev.gradleplugins.buildscript.ast.expressions.BooleanLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.CastingExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CollectionLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
@@ -153,7 +153,7 @@ public final class GroovyDslTransformer implements ASTTransformer {
                     if (result instanceof CollectionLiteralExpression && type instanceof ReferenceType && ((ReferenceType) type).typeOnly().toString().equals("Set")) {
                         return new SetLiteralExpression(result.getType(), ((CollectionLiteralExpression) result).getExpressions());
                     } else {
-                        result = new AsExpression(type, result);
+                        result = new CastingExpression(CastingExpression.CastingType.AS, type, result);
                     }
                 }
                 return result;

@@ -2,9 +2,9 @@ package dev.gradleplugins.buildscript.syntax;
 
 import dev.gradleplugins.buildscript.ast.Node;
 import dev.gradleplugins.buildscript.ast.comments.Comment;
-import dev.gradleplugins.buildscript.ast.expressions.AsExpression;
 import dev.gradleplugins.buildscript.ast.expressions.AssignmentExpression;
 import dev.gradleplugins.buildscript.ast.expressions.BooleanLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.CastingExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression;
 import dev.gradleplugins.buildscript.ast.expressions.DelegationSpecifier;
 import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
@@ -21,7 +21,6 @@ import dev.gradleplugins.buildscript.ast.expressions.NullLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.PostfixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.PrefixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
-import dev.gradleplugins.buildscript.ast.expressions.SafeAsExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SafeNavigationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringInterpolationExpression;
@@ -120,10 +119,6 @@ public final class KotlinRender implements RenderableSyntax.Renderer {
 
         public Content visit(InstanceOfExpression expression) {
             return Content.of(render(expression.getExpression()) + " is " + expression.getInstanceType());
-        }
-
-        public Content visit(AsExpression expression) {
-            return Content.of(render(expression.getExpression()) + " as " + expression.getType());
         }
 
         public Content visit(BooleanLiteralExpression expression) {
@@ -312,8 +307,12 @@ public final class KotlinRender implements RenderableSyntax.Renderer {
         }
 
         @Override
-        public Content visit(SafeAsExpression expression) {
-            return Content.of(render(expression.getExpression()) + " as? " + expression.getType());
+        public Content visit(CastingExpression expression) {
+            switch (expression.getCastingType()) {
+                case SAFE_AS: return Content.of(render(expression.getExpression()) + " as? " + expression.getType());
+                case AS: return Content.of(render(expression.getExpression()) + " as " + expression.getType());
+                default: throw invalidLanguageNode();
+            }
         }
 
         @Override

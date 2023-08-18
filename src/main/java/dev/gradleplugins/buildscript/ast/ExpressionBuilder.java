@@ -1,6 +1,6 @@
 package dev.gradleplugins.buildscript.ast;
 
-import dev.gradleplugins.buildscript.ast.expressions.CastExpression;
+import dev.gradleplugins.buildscript.ast.expressions.CastingExpression;
 import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.expressions.InfixExpression;
@@ -37,11 +37,11 @@ public final class ExpressionBuilder<T extends Expression> implements Expression
         return thiz.accept(visitor);
     }
 
-    public ExpressionBuilder<CastExpression> as(Type type) {
-        return new ExpressionBuilder<>(new CastExpression(type, thiz));
+    public ExpressionBuilder<CastingExpression> as(Type type) {
+        return new ExpressionBuilder<>(new CastingExpression(CastingExpression.CastingType.AS, type, thiz));
     }
 
-    public ExpressionBuilder<CastExpression> as(Class<?> type) {
+    public ExpressionBuilder<CastingExpression> as(Class<?> type) {
         return as(ReferenceType.of(type));
     }
 

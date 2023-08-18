@@ -1,7 +1,19 @@
 package dev.gradleplugins.buildscript.ast.expressions;
 
-public interface CastingExpression extends Expression {
-    enum CastingType {
+import dev.gradleplugins.buildscript.ast.type.Type;
+
+public class CastingExpression implements Expression {
+    private final CastingType castingType;
+    private final Type type;
+    private final Expression expression;
+
+    public CastingExpression(CastingType castingType, Type type, Expression expression) {
+        this.castingType = castingType;
+        this.type = type;
+        this.expression = expression;
+    }
+
+    public enum CastingType {
         // Represent a cast expression using as keyword (Groovy/Kotlin)
         AS,
 
@@ -12,7 +24,21 @@ public interface CastingExpression extends Expression {
         C_STYLE
     }
 
-    CastingType getCastingType();
+    @Override
+    public Type getType() {
+        return type;
+    }
 
-    Expression getExpression();
+    public CastingType getCastingType() {
+        return castingType;
+    }
+
+    public Expression getExpression() {
+        return expression;
+    }
+
+    @Override
+    public <ReturnType> ReturnType accept(Visitor<ReturnType> visitor) {
+        return visitor.visit(this);
+    }
 }

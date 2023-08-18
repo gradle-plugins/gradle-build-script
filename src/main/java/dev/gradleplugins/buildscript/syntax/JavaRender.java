@@ -4,7 +4,7 @@ import dev.gradleplugins.buildscript.ast.Node;
 import dev.gradleplugins.buildscript.ast.comments.Comment;
 import dev.gradleplugins.buildscript.ast.expressions.AssignmentExpression;
 import dev.gradleplugins.buildscript.ast.expressions.BooleanLiteralExpression;
-import dev.gradleplugins.buildscript.ast.expressions.CastExpression;
+import dev.gradleplugins.buildscript.ast.expressions.CastingExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression;
 import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
@@ -90,8 +90,11 @@ public final class JavaRender implements RenderableSyntax.Renderer {
             return Content.of(render(expression.getExpression()) + " instanceof " + expression.getInstanceType());
         }
 
-        public Content visit(CastExpression expression) {
-            return Content.of("(" + expression.getType() + ") " + render(expression.getExpression()));
+        public Content visit(CastingExpression expression) {
+            switch (expression.getCastingType()) {
+                case C_STYLE: Content.of("(" + expression.getType() + ") " + render(expression.getExpression()));
+                default: throw invalidLanguageNode();
+            }
         }
 
         public Content visit(BooleanLiteralExpression expression) {
