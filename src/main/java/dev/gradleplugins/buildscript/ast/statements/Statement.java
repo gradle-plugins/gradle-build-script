@@ -19,7 +19,6 @@ public interface Statement extends Node {
         ReturnType visit(ExpressionStatement statement);
         ReturnType visit(GroupStatement statement);
         ReturnType visit(ImportDeclaration statement);
-        ReturnType visit(BlockStatement statement);
         ReturnType visit(GradleBlockStatement statement);
         ReturnType visit(PluginsDslBlock.IdStatement statement);
 

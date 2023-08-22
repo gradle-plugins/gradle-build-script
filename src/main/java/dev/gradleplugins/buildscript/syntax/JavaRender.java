@@ -11,6 +11,8 @@ import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.expressions.FieldAccessExpression;
 import dev.gradleplugins.buildscript.ast.expressions.GroovyDslLiteral;
 import dev.gradleplugins.buildscript.ast.expressions.InfixExpression;
+import dev.gradleplugins.buildscript.ast.expressions.ItExpression;
+import dev.gradleplugins.buildscript.ast.expressions.LambdaExpression;
 import dev.gradleplugins.buildscript.ast.expressions.LiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MapLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression;
@@ -33,6 +35,7 @@ import dev.gradleplugins.buildscript.ast.statements.ImportDeclaration;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
 import dev.gradleplugins.buildscript.blocks.ApplyStatement;
 import dev.gradleplugins.buildscript.syntax.Syntax.Content;
+import dev.gradleplugins.buildscript.syntax.normalizer.UseExplicitItTransformer;
 
 import java.util.Collections;
 import java.util.stream.Collectors;
@@ -41,7 +44,7 @@ import java.util.stream.StreamSupport;
 
 import static dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression.current;
 import static dev.gradleplugins.buildscript.ast.type.ReferenceType.stringType;
-import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
+import static dev.gradleplugins.buildscript.ast.type.UnknownType.unknownType;
 
 public final class JavaRender implements RenderableSyntax.Renderer {
     @Override
@@ -83,6 +86,11 @@ public final class JavaRender implements RenderableSyntax.Renderer {
 
         private String render(Expression expression) {
             return expression.accept(this).toString();
+        }
+
+        @Override
+        public Content visit(ItExpression expression) {
+            return Content.of("it");
         }
 
         public Content visit(TypeComparisonExpression expression) {
@@ -191,10 +199,69 @@ public final class JavaRender implements RenderableSyntax.Renderer {
         }
 
         public Content visit(GradleBlockStatement statement) {
+            statement = (GradleBlockStatement) statement.accept(new UseExplicitItTransformer());
+            LambdaExpression bodyExpression = statement.getBody();
+//            if (bodyExpression.getParameters() instanceof LambdaExpressionEx.SingleImplicitParameter) {
+//                bodyExpression = (LambdaExpression) new ASTTransformer() {
+//                    @Override
+//                    public Expression visit(ItExpression expression) {
+//                        return literal("it");
+//                    }
+//                }.visit(new LambdaExpression(Collections.singletonList(new Parameter(unknownType(), "it")), statement.getBody().getBody()));
+//            }
             if (statement.getSelector() instanceof MethodCallExpression) {
-                return visit(new MethodCallExpression(((MethodCallExpression) statement.getSelector()).getObjectExpression(), Stream.concat(((MethodCallExpression) statement.getSelector()).getArguments().stream(), Stream.of(literal("__ -> {}"))).collect(Collectors.toList())));
+                return visit(new ExpressionStatement(new MethodCallExpression(((MethodCallExpression) statement.getSelector()).getObjectExpression(), Stream.concat(((MethodCallExpression) statement.getSelector()).getArguments().stream(), Stream.of(bodyExpression)).collect(Collectors.toList()))));
             } else { // assume literal
-                return visit(new MethodCallExpression(current(), render(statement.getSelector()), Collections.singletonList(literal("it -> {}"))));
+                return visit(new ExpressionStatement(new MethodCallExpression(current(), render(statement.getSelector()), Collections.singletonList(bodyExpression))));
+            }
+        }
+
+        @Override
+        public Content visit(LambdaExpression expression) {
+            final Content inner = expression.getBody().map(it -> it.accept(new Node.Visitor<Content>() {
+                @Override
+                public Content visit(Statement statement) {
+                    return statement.accept(JavaRender.Render.this);
+                }
+
+                @Override
+                public Content visit(Expression expression) {
+                    return expression.accept(JavaRender.Render.this);
+                }
+
+                @Override
+                public Content visit(Comment comment) {
+                    throw new UnsupportedOperationException();
+                }
+            })).orElse(Content.empty());
+
+            String parameters = expression.getParameters().stream().map(it -> {
+                if (it.getType().equals(unknownType())) {
+                    return it.getName();
+                }
+                return it.getType() + " " + it.getName();
+            }).collect(Collectors.joining(", "));
+
+            if (parameters.isEmpty()) {
+                if (expression.getParameters() instanceof LambdaExpression.SingleImplicitParameter) {
+                    parameters = "it";
+                } else {
+                    parameters = "()";
+                }
+            } else if (expression.getParameters().count() > 1 || expression.getParameters().stream().anyMatch(it -> !it.getType().equals(unknownType()))) {
+                parameters = "(" + parameters + ")";
+            }
+
+            if (inner.isEmpty()) {
+                return Content.of(parameters + " -> {}");
+            } else if (inner.hasSingleLine()) {
+                if (expression.getBody().orElse(null) instanceof Expression) {
+                    return Content.of(parameters + " -> " + inner);
+                } else {
+                    return Content.of(parameters + " -> { " + inner + " }");
+                }
+            } else {
+                return Content.builder().add(parameters + " -> {").add(inner.indent()).add("}").build();
             }
         }
 

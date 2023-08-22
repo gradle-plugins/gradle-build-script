@@ -1,8 +1,8 @@
 package dev.gradleplugins.buildscript.blocks;
 
-import dev.gradleplugins.buildscript.ast.statements.BlockStatement;
+import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
 
-public final class RepositoriesBlock extends BlockStatement.Builder<RepositoriesBlock> {
+public final class RepositoriesBlock extends GradleBlockStatement.Body.Builder<RepositoriesBlock> {
     public RepositoriesBlock() {
         super(RepositoriesBlock.class);
     }

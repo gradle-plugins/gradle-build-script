@@ -1,24 +1,15 @@
 package dev.gradleplugins.buildscript.blocks;
 
+import dev.gradleplugins.buildscript.ast.GradleBlockStatementBuilder;
 import dev.gradleplugins.buildscript.ast.expressions.LiteralExpression;
-import dev.gradleplugins.buildscript.ast.statements.BlockStatement;
 import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
+import dev.gradleplugins.buildscript.ast.statements.Statement;
 
 import java.util.function.Consumer;
 
-import static dev.gradleplugins.buildscript.ast.expressions.PropertyAccessExpression.plainProperty;
 import static dev.gradleplugins.buildscript.ast.type.UnknownType.unknownType;
-import static dev.gradleplugins.buildscript.syntax.Syntax.string;
 
 public final class GradleBuildScriptBlocks {
-    public static GradleBlockStatement doLast(Consumer<? super BlockStatement.Builder<?>> configureAction) {
-        return GradleBlockStatement.block("doLast", configureAction);
-    }
-
-    public static GradleBlockStatement registerTask(String taskName, Consumer<? super BlockStatement.Builder<?>> configureAction) {
-        return plainProperty("tasks").call("register", string(taskName)).block(configureAction);
-    }
-
     public static GradleBlockStatement configurations(Consumer<? super ConfigurationsBlock> configureAction) {
         final ConfigurationsBlock block = new ConfigurationsBlock();
         configureAction.accept(block);
@@ -79,8 +70,15 @@ public final class GradleBuildScriptBlocks {
         return new GradleBlockStatement(new LiteralExpression(unknownType(), "initscript"), block.build());
     }
 
-    //    public GradleBlock initscript(Consumer<? super BuildScriptBlock> configureAction) {
-//        add(BuildScriptBlock.initscript(configureAction));
-//        return this;
-//    }
+    public static Statement settingsEvaluated(Consumer<? super SettingsBlock> configureAction) {
+        final SettingsBlock block = new SettingsBlock();
+        configureAction.accept(block);
+        return new GradleBlockStatementBuilder(new GradleBlockStatement(new LiteralExpression(unknownType(), "settingsEvaluated"), block.build())).useExplicitIt();
+    }
+
+    public static Statement beforeSettings(Consumer<? super SettingsBlock> action) {
+        final SettingsBlock block = new SettingsBlock();
+        action.accept(block);
+        return new GradleBlockStatementBuilder(new GradleBlockStatement(new LiteralExpression(unknownType(), "beforeSettings"), block.build())).useExplicitIt();
+    }
 }

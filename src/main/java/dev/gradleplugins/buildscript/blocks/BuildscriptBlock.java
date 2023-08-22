@@ -1,10 +1,10 @@
 package dev.gradleplugins.buildscript.blocks;
 
-import dev.gradleplugins.buildscript.ast.statements.BlockStatement;
+import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
 
 import java.util.function.Consumer;
 
-public final class BuildscriptBlock extends BlockStatement.Builder<BuildscriptBlock> {
+public final class BuildscriptBlock extends GradleBlockStatement.Body.Builder<BuildscriptBlock> {
     public static Consumer<DependenciesBlock> classpath(DependencyNotation notation) {
         return builder -> builder.add("classpath", notation);
     }

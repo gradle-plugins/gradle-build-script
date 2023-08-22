@@ -9,7 +9,6 @@ import dev.gradleplugins.buildscript.ast.expressions.PrefixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.PropertyAccessExpression;
 import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.TypeComparisonExpression;
-import dev.gradleplugins.buildscript.ast.statements.BlockStatement;
 import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
 import dev.gradleplugins.buildscript.ast.type.ReferenceType;
 import dev.gradleplugins.buildscript.ast.type.Type;
@@ -21,9 +20,9 @@ import java.util.function.Consumer;
 import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
 
 public final class ExpressionBuilder<T extends Expression> implements Expression {
-    private final Expression thiz;
+    private final T thiz;
 
-    public ExpressionBuilder(Expression thiz) {
+    public ExpressionBuilder(T thiz) {
         this.thiz = thiz;
     }
 
@@ -69,7 +68,7 @@ public final class ExpressionBuilder<T extends Expression> implements Expression
         return new ExpressionBuilder<>(new TypeComparisonExpression(TypeComparisonExpression.ComparisonType.INSTANCE_OF, thiz, new ReferenceType(type.getCanonicalName())));
     }
 
-    public GradleBlockStatement block(Consumer<? super BlockStatement.Builder<?>> configureAction) {
+    public GradleBlockStatementBuilder block(Consumer<? super GradleBlockStatement.Body.Builder<?>> configureAction) {
         return GradleBlockStatement.block(this, configureAction);
     }
 
@@ -104,5 +103,9 @@ public final class ExpressionBuilder<T extends Expression> implements Expression
 
     public ExpressionBuilder<Expression> assign(Expression expression) {
         return new ExpressionBuilder<>(new InfixExpression(thiz, InfixExpression.Operator.Assignment, expression));
+    }
+
+    public T get() {
+        return thiz;
     }
 }

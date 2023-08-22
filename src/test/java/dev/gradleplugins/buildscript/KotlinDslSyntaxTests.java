@@ -54,13 +54,13 @@ class KotlinDslSyntaxTests extends SyntaxTester {
     }
 
     @Override
-    public String expectedGradleBlock__foo_literal_selector() {
-        return "foo {";
+    public String expectedGradleBlock__foo_literal_selector__val_myVar__assignedTo__bar_string() {
+        return "foo { val myVar = \"bar\" }";
     }
 
     @Override
-    public String expectedGradleBlock__register_method__foo_string_selector() {
-        return "register(\"foo\") {";
+    public String expectedGradleBlock__register_method__foo_string_selector__val_myVar__assignedTo__bar_string() {
+        return "register(\"foo\") { val myVar = \"bar\" }";
     }
 
     @Override
@@ -69,7 +69,12 @@ class KotlinDslSyntaxTests extends SyntaxTester {
     }
 
     @Override
-    public String expectedGradleBlock__foo_literal_selector__call_someMethod() {
+    public String expectedGradleBlock__foo_literal_selector__call_someMethod_asStatement() {
+        return "foo { someMethod() }";
+    }
+
+    @Override
+    public String expectedGradleBlock__foo_literal_selector__call_someMethod_asExpression() {
         return "foo { someMethod() }";
     }
 
@@ -86,6 +91,26 @@ class KotlinDslSyntaxTests extends SyntaxTester {
     @Override
     public String expectedGradleBlock__foo_extension_selector_using_ExtensionAware_API__empty_block() {
         return "extensions.configure(\"foo\") {}";
+    }
+
+    @Override
+    public String expectedGradleBlock__foo_literal_selector__explicit_it_someMethod_bar_string() {
+        return "foo { it.someMethod(\"bar\") }";
+    }
+
+    @Override
+    public String expectedGradleBlock__foo_literal_selector__explicit_it_named_task_someMethod_bar_string() {
+        return "foo { task -> task.someMethod(\"bar\") }";
+    }
+
+    @Override
+    public String expectedGradleBlock__foo_literal_selector__Task_task__explicit_it_named_task_someMethod_bar_string() {
+        return "foo { task: Task -> task.someMethod(\"bar\") }";
+    }
+
+    @Override
+    public String expectedGradleBlock__foo_literal_selector__it_as_getter_someMethod_bar_string() {
+        return "foo.someMethod(\"bar\")";
     }
 
     @Override

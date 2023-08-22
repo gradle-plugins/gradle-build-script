@@ -6,6 +6,7 @@ import dev.gradleplugins.buildscript.ast.expressions.AssignmentExpression;
 import dev.gradleplugins.buildscript.ast.expressions.BooleanLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CastingExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression;
+import dev.gradleplugins.buildscript.ast.expressions.DelegateExpression;
 import dev.gradleplugins.buildscript.ast.expressions.DelegationSpecifier;
 import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
@@ -50,6 +51,7 @@ import java.util.stream.StreamSupport;
 
 import static dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression.current;
 import static dev.gradleplugins.buildscript.ast.type.ReferenceType.stringType;
+import static dev.gradleplugins.buildscript.ast.type.UnknownType.unknownType;
 import static dev.gradleplugins.buildscript.syntax.Syntax.string;
 
 public final class KotlinRender implements RenderableSyntax.Renderer {
@@ -204,7 +206,7 @@ public final class KotlinRender implements RenderableSyntax.Renderer {
 
         public Content visit(QualifiedExpression expression) {
             final StringBuilder builder = new StringBuilder();
-            if (!(expression.getLeftExpression() instanceof CurrentScopeExpression)) {
+            if (!(expression.getLeftExpression() instanceof CurrentScopeExpression) && !(expression.getLeftExpression() instanceof DelegateExpression)) {
                 builder.append(render(expression.getLeftExpression()));
                 builder.append(".");
             }
@@ -213,22 +215,7 @@ public final class KotlinRender implements RenderableSyntax.Renderer {
         }
 
         public Content visit(GradleBlockStatement statement) {
-            final Content.Builder contentBuilder = Content.builder();
-            statement.getBlock().forEach(it -> contentBuilder.add(it.accept(this)));
-            Content inner = contentBuilder.build();
-
-            final Content.Builder builder = Content.builder();
-
-            if (inner.isEmpty()) {
-                builder.add(render(statement.getSelector()) + " {}");
-            } else if (inner.hasSingleLine()) {
-                builder.add(render(statement.getSelector()) + " { " + inner + " }");
-            } else {
-                builder.add(render(statement.getSelector()) + " {");
-                builder.add(inner.indent());
-                builder.add("}");
-            }
-            return builder.build();
+            return Content.of(render(statement.getSelector()) + " " + render(statement.getBody()));
         }
 
         public Content visit(MultiStatement statement) {
@@ -272,22 +259,44 @@ public final class KotlinRender implements RenderableSyntax.Renderer {
 
         @Override
         public Content visit(LambdaExpression expression) {
-            return Content.of("{ " + expression.getBody().accept(new Node.Visitor<String>() {
+            final Content inner = expression.getBody().map(it -> it.accept(new Node.Visitor<Content>() {
                 @Override
-                public String visit(Statement statement) {
-                    return statement.accept(Render.this).toString();
+                public Content visit(Statement statement) {
+                    return statement.accept(KotlinRender.Render.this);
                 }
 
                 @Override
-                public String visit(Expression expression) {
-                    return expression.accept(Render.this).toString();
+                public Content visit(Expression expression) {
+                    return expression.accept(KotlinRender.Render.this);
                 }
 
                 @Override
-                public String visit(Comment comment) {
+                public Content visit(Comment comment) {
                     throw new UnsupportedOperationException();
                 }
-            }) + " }");
+            })).orElse(Content.empty());
+
+            String parameters = expression.getParameters().stream().map(it -> {
+                if (it.getType().equals(unknownType())) {
+                    return it.getName();
+                }
+                return it.getName() + ": " + it.getType();
+            }).collect(Collectors.joining(", "));
+            if (expression.getParameters() instanceof LambdaExpression.SingleImplicitParameter) {
+                parameters = "";
+            } else if (expression.getParameters().count() == 0) {
+                parameters = " ->";
+            } else if (!parameters.isEmpty()) {
+                parameters = " " + parameters + " ->";
+            }
+
+            if (inner.isEmpty()) {
+                return Content.of("{}");
+            } else if (inner.hasSingleLine()) {
+                return Content.of("{" + parameters + " " + inner + " }");
+            } else {
+                return Content.builder().add("{" + parameters).add(inner.indent()).add("}").build();
+            }
         }
 
         @Override

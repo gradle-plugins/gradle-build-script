@@ -10,6 +10,7 @@ import dev.gradleplugins.buildscript.ast.expressions.CastingExpression;
 import dev.gradleplugins.buildscript.ast.expressions.ClassLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CollectionLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression;
+import dev.gradleplugins.buildscript.ast.expressions.DelegateExpression;
 import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.expressions.FieldAccessExpression;
@@ -35,7 +36,6 @@ import dev.gradleplugins.buildscript.ast.expressions.TypeExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarator;
 import dev.gradleplugins.buildscript.ast.statements.AssertStatement;
-import dev.gradleplugins.buildscript.ast.statements.BlockStatement;
 import dev.gradleplugins.buildscript.ast.statements.CommentedStatement;
 import dev.gradleplugins.buildscript.ast.statements.ExpressionStatement;
 import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
@@ -52,8 +52,13 @@ import java.util.stream.StreamSupport;
 
 public interface ASTTransformer extends Expression.Visitor<Expression>, Statement.Visitor<Statement> {
     @Override
+    default Expression visit(DelegateExpression expression) {
+        return expression;
+    }
+
+    @Override
     default Expression visit(LambdaExpression expression) {
-        return new LambdaExpression(expression.getParameters(), expression.getBody().accept(new Node.Visitor<Node>() {
+        return new LambdaExpression(expression.getLambdaType(), expression.getParameters(), expression.getBody().map(it -> it.accept(new Node.Visitor<Node>() {
             @Override
             public Node visit(Statement statement) {
                 return statement.accept(ASTTransformer.this);
@@ -68,7 +73,7 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
             public Node visit(Comment comment) {
                 throw new UnsupportedOperationException();
             }
-        }));
+        })).orElse(null));
     }
 
     @Override
@@ -247,13 +252,8 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
     }
 
     @Override
-    default Statement visit(BlockStatement statement) {
-        return new BlockStatement(StreamSupport.stream(statement.spliterator(), false).map(it -> it.accept(this)).collect(Collectors.toList()));
-    }
-
-    @Override
     default Statement visit(GradleBlockStatement statement) {
-        return new GradleBlockStatement(statement.getSelector().accept(this), new BlockStatement(StreamSupport.stream(statement.getBlock().spliterator(), false).map(it -> it.accept(this)).collect(Collectors.toList())));
+        return new GradleBlockStatement(statement.getSelector().accept(this), (LambdaExpression) statement.getBody().accept(this));
     }
 
     @Override

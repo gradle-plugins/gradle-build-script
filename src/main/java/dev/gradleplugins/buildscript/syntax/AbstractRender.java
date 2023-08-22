@@ -8,6 +8,7 @@ import dev.gradleplugins.buildscript.ast.expressions.CastingExpression;
 import dev.gradleplugins.buildscript.ast.expressions.ClassLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CollectionLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression;
+import dev.gradleplugins.buildscript.ast.expressions.DelegateExpression;
 import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.expressions.FieldAccessExpression;
@@ -33,7 +34,6 @@ import dev.gradleplugins.buildscript.ast.expressions.TypeExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarator;
 import dev.gradleplugins.buildscript.ast.statements.AssertStatement;
-import dev.gradleplugins.buildscript.ast.statements.BlockStatement;
 import dev.gradleplugins.buildscript.ast.statements.CommentedStatement;
 import dev.gradleplugins.buildscript.ast.statements.ExpressionStatement;
 import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
@@ -170,6 +170,11 @@ public class AbstractRender implements Statement.Visitor<Syntax.Content>, Expres
     }
 
     @Override
+    public Syntax.Content visit(DelegateExpression expression) {
+        throw invalidLanguageNode();
+    }
+
+    @Override
     public Syntax.Content visit(VariableDeclarationExpression expression) {
         throw invalidLanguageNode();
     }
@@ -211,11 +216,6 @@ public class AbstractRender implements Statement.Visitor<Syntax.Content>, Expres
 
     @Override
     public Syntax.Content visit(ImportDeclaration statement) {
-        throw invalidLanguageNode();
-    }
-
-    @Override
-    public Syntax.Content visit(BlockStatement statement) {
         throw invalidLanguageNode();
     }
 

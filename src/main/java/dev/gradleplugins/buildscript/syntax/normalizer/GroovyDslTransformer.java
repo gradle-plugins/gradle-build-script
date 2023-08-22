@@ -247,7 +247,7 @@ public final class GroovyDslTransformer implements ASTTransformer {
 
                 // FIXME: capture parameters
                 // TODO: Use block instead of multi-statement
-                return new LambdaExpression(Collections.emptyList(), MultiStatement.of(statements));
+                return new LambdaExpression(LambdaExpression.LambdaType.defaultType(), LambdaExpression.Parameters.implicitParameter(), MultiStatement.of(statements));
             }
 
             @Override

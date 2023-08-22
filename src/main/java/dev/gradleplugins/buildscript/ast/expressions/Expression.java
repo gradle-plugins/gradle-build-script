@@ -50,6 +50,7 @@ public interface Expression extends Node {
 
         ReturnType visit(CurrentScopeExpression expression); // ???
         ReturnType visit(ItExpression expression); // ???
+        ReturnType visit(DelegateExpression expression); // ???
         ReturnType visit(VariableDeclarationExpression expression); // ???
         ReturnType visit(VariableDeclarator expression); // ???
 

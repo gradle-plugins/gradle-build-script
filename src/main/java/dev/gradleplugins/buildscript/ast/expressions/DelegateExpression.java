@@ -4,14 +4,14 @@ import dev.gradleplugins.buildscript.ast.type.Type;
 
 import static dev.gradleplugins.buildscript.ast.type.UnknownType.unknownType;
 
-public final class ItExpression implements Expression {
+public final class DelegateExpression implements Expression {
     private final Type type;
 
-    public ItExpression() {
+    public DelegateExpression() {
         this(unknownType());
     }
 
-    public ItExpression(Type type) {
+    public DelegateExpression(Type type) {
         this.type = type;
     }
 

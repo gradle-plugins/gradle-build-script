@@ -147,6 +147,15 @@ public interface Syntax {
             };
         }
 
+        static Content empty() {
+            return new Content() {
+                @Override
+                public Iterator<String> iterator() {
+                    return Stream.<String>empty().iterator();
+                }
+            };
+        }
+
         static Builder builder() {
             return new Builder();
         }
