@@ -118,8 +118,8 @@ public final class GroovyRender implements RenderableSyntax.Renderer {
 
         public Content visit(CastingExpression expression) {
             switch (expression.getCastingType()) {
-                case AS: Content.of(render(expression.getExpression()) + " as " + expression.getType());
-                case C_STYLE: Content.of("(" + expression.getType() + ") " + render(expression.getExpression()));
+                case AS: return Content.of(render(expression.getExpression()) + " as " + expression.getType());
+                case C_STYLE: return Content.of("(" + expression.getType() + ") " + render(expression.getExpression()));
                 default: throw invalidLanguageNode();
             }
         }

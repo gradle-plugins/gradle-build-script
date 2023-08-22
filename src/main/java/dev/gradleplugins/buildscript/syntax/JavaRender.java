@@ -102,7 +102,7 @@ public final class JavaRender implements RenderableSyntax.Renderer {
 
         public Content visit(CastingExpression expression) {
             switch (expression.getCastingType()) {
-                case C_STYLE: Content.of("(" + expression.getType() + ") " + render(expression.getExpression()));
+                case C_STYLE: return Content.of("(" + expression.getType() + ") " + render(expression.getExpression()));
                 default: throw invalidLanguageNode();
             }
         }
@@ -129,8 +129,8 @@ public final class JavaRender implements RenderableSyntax.Renderer {
 
         public Content visit(ImportDeclaration statement) {
             switch (statement.getImportType()) {
-                case STATIC: return Content.of("import static " + statement.getName());
-                case TYPE: return Content.of("import " + statement.getName());
+                case STATIC: return Content.of("import static " + statement.getName() + ";");
+                case TYPE: return Content.of("import " + statement.getName() + ";");
                 default: throw invalidLanguageNode();
             }
         }
