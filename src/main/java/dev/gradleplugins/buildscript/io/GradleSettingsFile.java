@@ -36,7 +36,7 @@ public final class GradleSettingsFile implements SettingsBuildScript {
     }
 
     public static GradleSettingsFile inDirectory(Path location) {
-        return new GradleSettingsFile(location);
+        return new GradleSettingsFile(location).writeScriptToFileSystem();
     }
 
     @Override
@@ -45,8 +45,7 @@ public final class GradleSettingsFile implements SettingsBuildScript {
             pluginsDslBlock = new PluginsDslBlock();
         }
         configureAction.accept(pluginsDslBlock);
-        writeScriptToFileSystem();
-        return this;
+        return writeScriptToFileSystem();
     }
 
     @Override
@@ -55,8 +54,7 @@ public final class GradleSettingsFile implements SettingsBuildScript {
             pluginManagementBlock = new PluginManagementBlock();
         }
         configureAction.accept(pluginManagementBlock);
-        writeScriptToFileSystem();
-        return this;
+        return writeScriptToFileSystem();
     }
 
     @Override
@@ -70,8 +68,7 @@ public final class GradleSettingsFile implements SettingsBuildScript {
             buildScriptBlock = new BuildscriptBlock();
         }
         configureAction.accept(buildScriptBlock);
-        writeScriptToFileSystem();
-        return this;
+        return writeScriptToFileSystem();
     }
 
     public GradleSettingsFile useKotlinDsl() {
@@ -82,20 +79,17 @@ public final class GradleSettingsFile implements SettingsBuildScript {
         }
 
         dsl = GradleDsl.KOTLIN;
-        writeScriptToFileSystem();
-        return this;
+        return writeScriptToFileSystem();
     }
 
     public GradleSettingsFile append(Statement statement) {
         statements.add(statement);
-        writeScriptToFileSystem();
-        return this;
+        return writeScriptToFileSystem();
     }
 
     public GradleSettingsFile append(Expression expression) {
         statements.add(new ExpressionStatement(expression));
-        writeScriptToFileSystem();
-        return this;
+        return writeScriptToFileSystem();
     }
 
     public GradleSettingsFile leftShift(Statement statement) {
@@ -106,7 +100,7 @@ public final class GradleSettingsFile implements SettingsBuildScript {
         return append(expression);
     }
 
-    private void writeScriptToFileSystem() {
+    private GradleSettingsFile writeScriptToFileSystem() {
         try {
             List<Statement> stmt = new ArrayList<>();
             if (buildScriptBlock != null) {
@@ -123,5 +117,7 @@ public final class GradleSettingsFile implements SettingsBuildScript {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+
+        return this;
     }
 }

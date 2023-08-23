@@ -34,7 +34,7 @@ public final class GradleBuildFile implements ProjectBuildScript {
     }
 
     public static GradleBuildFile inDirectory(Path location) {
-        return new GradleBuildFile(location);
+        return new GradleBuildFile(location).writeScriptToFileSystem();
     }
 
     @Override
@@ -43,8 +43,7 @@ public final class GradleBuildFile implements ProjectBuildScript {
             pluginsDslBlock = new PluginsDslBlock();
         }
         configureAction.accept(pluginsDslBlock);
-        writeScriptToFileSystem();
-        return this;
+        return writeScriptToFileSystem();
     }
 
     @Override
@@ -58,20 +57,17 @@ public final class GradleBuildFile implements ProjectBuildScript {
             buildScriptBlock = new BuildscriptBlock();
         }
         configureAction.accept(buildScriptBlock);
-        writeScriptToFileSystem();
-        return this;
+        return writeScriptToFileSystem();
     }
 
     public GradleBuildFile append(Statement statement) {
         statements.add(statement);
-        writeScriptToFileSystem();
-        return this;
+        return writeScriptToFileSystem();
     }
 
     public GradleBuildFile append(Expression expression) {
         statements.add(new ExpressionStatement(expression));
-        writeScriptToFileSystem();
-        return this;
+        return writeScriptToFileSystem();
     }
 
     public GradleBuildFile leftShift(Statement statement) {
@@ -90,11 +86,10 @@ public final class GradleBuildFile implements ProjectBuildScript {
         }
 
         dsl = GradleDsl.KOTLIN;
-        writeScriptToFileSystem();
-        return this;
+        return writeScriptToFileSystem();
     }
 
-    private void writeScriptToFileSystem() {
+    private GradleBuildFile writeScriptToFileSystem() {
         try {
             List<Statement> stmt = new ArrayList<>();
             if (buildScriptBlock != null) {
@@ -108,5 +103,7 @@ public final class GradleBuildFile implements ProjectBuildScript {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+
+        return this;
     }
 }
