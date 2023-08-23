@@ -1,0 +1,66 @@
+= Gradle AST Project
+
+Welcome to the first unofficial AST (Abstract Syntax Tree) for Gradle build scripts!
+If you've ever been stifled by the thought, "Why decide the DSL before crafting my build script?", you're about to experience liberation.
+
+== 🎭 Reverse the Script
+
+Gone are the days of choosing your DSL (Groovy or Kotlin) first.
+With this project, immerse in the semantics of your build script first, and then let the project decide which language to output it in.
+
+== 🔥 Features
+
+- 📜 Write your Gradle build script using an AST.
+- 🔄 Convert the AST into:
+  * Kotlin DSL
+  * Groovy DSL
+  * Binary plugin class (Kotlin, Groovy, or Java).
+
+- 🎯 Ideal for:
+  * Creating functional tests targeting both DSLs.
+  * Building opinionated code blocks: `plugins`, `pluginManagement`, `buildscript`.
+  * Designing standout init project templates.
+
+[CAUTION]
+====
+🚫 **Limitations We're Addressing:**
+
+1. Groovy DSL literals are parsed only for Kotlin DSL rendering.
+2. No support for Kotlin DSL literals... yet.
+3. Class/function declarations are off the table for now.
+4. Using the tool to write a build script as a binary plugin? Just an experiment, tread carefully.
+5. Building the DSL directly with an expression builder? Experimental! And it might change.
+====
+
+IMPORTANT: We aren't looking to replace Groovy or Kotlin parsers. And while we don’t support every Groovy/Kotlin feature, complex build scripts are best written as binary plugins.
+
+== 🌲 Our Evolution
+
+1. **Genesis:** Birthed from Nokee's requirements, inspired by the Gradle init module and Cedric's adventures in Gradle's dependency realm.
+
+2. **Toddlers:** V1? Super basic. V2?
+Found its place in Nokee, but craved more flexibility.
+
+3. **Teen Years:** V3 showcased a nascent Gradle AST: Groovy DSL, Kotlin DSL, and binary plugins (Java 8/11 compatible).
+
+4. **Experimentation:** V4 tinkered with intercepting the Gradle API for the AST.
+An ambitious feat, but alas, too complex.
+
+5. **Coming of Age:** V5 embraced Groovy DSL literals, parsed to form the Gradle AST.
+The future?
+We’re building on this!
+
+We're now at a stage where this project aptly serves myriad projects.
+However, growth never stops.
+We’ll keep evolving.
+
+== 📜 License
+
+This magic is shared under the Apache-2 license.
+
+== 🚀 Dive In!
+
+Explore this revolution in Gradle build scripting.
+Relish the flexibility, dabble in the experiments, and build away!
+
+To infinity and beyond! 🚀🔧
