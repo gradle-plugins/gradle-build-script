@@ -12,8 +12,6 @@ import dev.gradleplugins.buildscript.ast.expressions.LiteralExpression;
 import dev.gradleplugins.buildscript.syntax.ASTTransformer;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -164,13 +162,13 @@ public final class GradleBlockStatement implements Statement {
         return new GradleBlockStatementBuilder(GradleBlockStatement.newBuilder().withSelector(selector).withBody(new LambdaExpression(new GradleBlockType(), LambdaExpression.Parameters.implicitParameter(), node)).build());
     }
 
-    public static GradleBlockStatementBuilder block(Expression selector, Consumer<? super Body.Builder<?>> configureAction) {
-        final Body.Builder<?> builder = Body.newBuilder();
+    public static GradleBlockStatementBuilder block(Expression selector, Consumer<? super BlockBuilder<?>> configureAction) {
+        final BlockBuilder<?> builder = BlockBuilder.newInstance();
         configureAction.accept(builder);
         return new GradleBlockStatementBuilder(GradleBlockStatement.newBuilder().withSelector(selector).withBody(builder.build()).build());
     }
 
-    public static GradleBlockStatementBuilder block(String selector, Consumer<? super Body.Builder<?>> configureAction) {
+    public static GradleBlockStatementBuilder block(String selector, Consumer<? super BlockBuilder<?>> configureAction) {
         return block(literal(selector), configureAction);
     }
 
@@ -183,101 +181,64 @@ public final class GradleBlockStatement implements Statement {
         return visitor.visit(this);
     }
 
-    public static final class Body {
-        private final List<Parameter> parameters;
-        private final Expression itExpression; // TODO: may or may not be known
-        private final Expression delegateExpression = null;
-        private final Node content;
+    public static abstract class BlockBuilder<SelfType extends BlockBuilder<SelfType>> {
+        private final Class<SelfType> type;
+        private final LambdaExpression.BodyBuilder builder = new LambdaExpression.BodyBuilder();
+        private final LambdaExpression.SingleImplicitParameter parameters = LambdaExpression.Parameters.implicitParameter();
+        private final GradleBlockType lambdaType = new GradleBlockType();
 
-        public Body(List<Parameter> parameters, Expression itExpression, Node content) {
-            this.parameters = parameters;
-            this.itExpression = itExpression;
-            this.content = content;
-        }
-
-        public List<Parameter> getParameters() {
-            return parameters;
-        }
-
-        public Node getContent() {
-            return content;
-        }
-
-        public Expression getItExpression() {
-            return itExpression;
-        }
-
-        public Expression getDelegateExpression() {
-            return delegateExpression;
-        }
-
-        public static Body of(Node statement) {
-            return new Body(Collections.emptyList(), new ItExpression(), statement);
-        }
-
-        public static Body empty() {
-            return new Body(Collections.emptyList(), new ItExpression(), MultiStatement.of(Collections.emptyList()));
+        protected BlockBuilder(Class<SelfType> type) {
+            this.type = type;
         }
 
         @SuppressWarnings("rawtypes")
-        public static Builder newBuilder() {
-            return new Builder(Body.Builder.class) {
+        public static BlockBuilder newInstance() {
+            return new BlockBuilder(BlockBuilder.class) {
                 @Override
-                protected Body.Builder newBuilder() {
-                    return Body.newBuilder();
+                protected BlockBuilder newBuilder() {
+                    return newInstance();
                 }
             };
         }
 
-        public static abstract class Builder<SelfType extends Builder<SelfType>> {
-            private final Class<SelfType> type;
-            private final LambdaExpression.BodyBuilder builder = new LambdaExpression.BodyBuilder();
-            private final LambdaExpression.SingleImplicitParameter parameters = LambdaExpression.Parameters.implicitParameter();
-            private final GradleBlockType lambdaType = new GradleBlockType();
+        public SelfType add(Statement statement) {
+            builder.add(statement);
+            return type.cast(this);
+        }
 
-            protected Builder(Class<SelfType> type) {
-                this.type = type;
-            }
+        public SelfType add(Expression expression) {
+            builder.add(expression);
+             return type.cast(this);
+        }
 
-            public SelfType add(Statement statement) {
-                builder.add(statement);
-                return type.cast(this);
-            }
+        public SelfType comment(String comment, Consumer<? super SelfType> configureAction) {
+            final SelfType nestedBlock = newBuilder();
+            configureAction.accept(nestedBlock);
+//                return add(new SingleLineCommentStatement<>(comment, nestedBlock.build()));
+            throw new UnsupportedOperationException();
+        }
 
-            public SelfType add(Expression expression) {
-                builder.add(expression);
-                 return type.cast(this);
-            }
+        public SelfType commented(Consumer<? super SelfType> configureAction) {
+            final SelfType nestedBlock = newBuilder();
+            configureAction.accept(nestedBlock);
+//                return add(new CommentedStatement<>(nestedBlock.build()));
+            throw new UnsupportedOperationException();
+        }
 
-            public SelfType comment(String comment, Consumer<? super SelfType> configureAction) {
-                final SelfType nestedBlock = newBuilder();
-                configureAction.accept(nestedBlock);
-    //                return add(new SingleLineCommentStatement<>(comment, nestedBlock.build()));
-                throw new UnsupportedOperationException();
-            }
+        // Choose it to refer to the first parameter, mostly the delegate
+        public ExpressionBuilder<?> it() {
+            return new ExpressionBuilder<>(parameters.it());
+        }
 
-            public SelfType commented(Consumer<? super SelfType> configureAction) {
-                final SelfType nestedBlock = newBuilder();
-                configureAction.accept(nestedBlock);
-    //                return add(new CommentedStatement<>(nestedBlock.build()));
-                throw new UnsupportedOperationException();
-            }
+        // Choose delegate to refer to `it` implicitly, let's not be confused by scope which can be a lot of things
+        public ExpressionBuilder<?> delegate() {
+            return new ExpressionBuilder<>(lambdaType.getReceiver());
+        }
 
-            // Choose it to refer to the first parameter, mostly the delegate
-            public ExpressionBuilder<?> it() {
-                return new ExpressionBuilder<>(parameters.it());
-            }
+        protected abstract SelfType newBuilder();
 
-            // Choose delegate to refer to `it` implicitly, let's not be confused by scope which can be a lot of things
-            public ExpressionBuilder<?> delegate() {
-                return new ExpressionBuilder<>(lambdaType.getReceiver());
-            }
-
-            protected abstract SelfType newBuilder();
-
-            public LambdaExpression build() {
-                return new LambdaExpression(lambdaType, parameters, builder.build());
-            }
+        public LambdaExpression build() {
+            return new LambdaExpression(lambdaType, parameters, builder.build());
         }
     }
 }

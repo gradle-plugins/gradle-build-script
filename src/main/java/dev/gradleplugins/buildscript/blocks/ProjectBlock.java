@@ -6,7 +6,7 @@ import dev.gradleplugins.buildscript.ast.type.UnknownType;
 
 import java.util.function.Consumer;
 
-public final class ProjectBlock extends GradleBlockStatement.Body.Builder<ProjectBlock> {
+public final class ProjectBlock extends GradleBlockStatement.BlockBuilder<ProjectBlock> {
     public ProjectBlock() {
         super(ProjectBlock.class);
     }
@@ -26,8 +26,8 @@ public final class ProjectBlock extends GradleBlockStatement.Body.Builder<Projec
         return this;
     }
 
-    public ProjectBlock tasks(Consumer<? super GradleBlockStatement.Body.Builder<?>> configureAction) {
-        final GradleBlockStatement.Body.Builder<?> block = GradleBlockStatement.Body.newBuilder();
+    public ProjectBlock tasks(Consumer<? super GradleBlockStatement.BlockBuilder<?>> configureAction) {
+        final GradleBlockStatement.BlockBuilder<?> block = GradleBlockStatement.BlockBuilder.newInstance();
         configureAction.accept(block);
         add(new GradleBlockStatement(new LiteralExpression(UnknownType.unknownType(), "tasks"), block.build()));
         return this;

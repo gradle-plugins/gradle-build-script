@@ -4,7 +4,7 @@ import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
 
 import java.util.function.Consumer;
 
-public final class PluginManagementBlock extends GradleBlockStatement.Body.Builder<PluginManagementBlock> {
+public final class PluginManagementBlock extends GradleBlockStatement.BlockBuilder<PluginManagementBlock> {
     public PluginManagementBlock() {
         super(PluginManagementBlock.class);
     }

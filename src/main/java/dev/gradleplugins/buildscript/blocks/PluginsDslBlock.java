@@ -3,7 +3,7 @@ package dev.gradleplugins.buildscript.blocks;
 import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
 
-public final class PluginsDslBlock extends GradleBlockStatement.Body.Builder<PluginsDslBlock> {
+public final class PluginsDslBlock extends GradleBlockStatement.BlockBuilder<PluginsDslBlock> {
     public PluginsDslBlock() {
         super(PluginsDslBlock.class);
     }

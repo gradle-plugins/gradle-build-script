@@ -68,7 +68,7 @@ public final class ExpressionBuilder<T extends Expression> implements Expression
         return new ExpressionBuilder<>(new TypeComparisonExpression(TypeComparisonExpression.ComparisonType.INSTANCE_OF, thiz, new ReferenceType(type.getCanonicalName())));
     }
 
-    public GradleBlockStatementBuilder block(Consumer<? super GradleBlockStatement.Body.Builder<?>> configureAction) {
+    public GradleBlockStatementBuilder block(Consumer<? super GradleBlockStatement.BlockBuilder<?>> configureAction) {
         return GradleBlockStatement.block(this, configureAction);
     }
 

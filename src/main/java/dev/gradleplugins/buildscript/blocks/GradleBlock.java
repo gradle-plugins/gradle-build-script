@@ -4,7 +4,7 @@ import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
 
 import java.util.function.Consumer;
 
-public final class GradleBlock extends GradleBlockStatement.Body.Builder<GradleBlock> {
+public final class GradleBlock extends GradleBlockStatement.BlockBuilder<GradleBlock> {
     public GradleBlock() {
         super(GradleBlock.class);
     }
