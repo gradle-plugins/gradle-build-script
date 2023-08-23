@@ -2,17 +2,13 @@ package dev.gradleplugins.buildscript.syntax;
 
 import dev.gradleplugins.buildscript.ast.Modifier;
 import dev.gradleplugins.buildscript.ast.Node;
-import dev.gradleplugins.buildscript.ast.body.ClassDeclaration;
-import dev.gradleplugins.buildscript.ast.body.MethodDeclaration;
 import dev.gradleplugins.buildscript.ast.body.Parameter;
 import dev.gradleplugins.buildscript.ast.body.TypeDeclaration;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
-import dev.gradleplugins.buildscript.ast.statements.BlockStatement;
 import dev.gradleplugins.buildscript.ast.statements.CompilationUnit;
 import dev.gradleplugins.buildscript.ast.statements.ExpressionStatement;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
 import dev.gradleplugins.buildscript.ast.type.ReferenceType;
-import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 import java.util.Collections;
@@ -47,7 +43,7 @@ public final class GradlePluginSyntax implements Transformer<Node> {
 
         // TODO: collect imports and rewrite types
         // TODO: fix current context so it refers `project` variable
-        statement = new ClassDeclaration(PLUGIN_CLASS_MODIFIERS, "MyPlugin", Collections.singletonList(ReferenceType.of(Plugin.class).where(ReferenceType.of(Project.class))), Collections.singletonList(new MethodDeclaration(APPLY_METHOD_MODIFIERS, "apply", APPLY_METHOD_PARAMETERS, new BlockStatement(Collections.singletonList((Statement) language.transform(statement))))));
+//        statement = new ClassDeclaration(PLUGIN_CLASS_MODIFIERS, "MyPlugin", Collections.singletonList(ReferenceType.of(Plugin.class).where(ReferenceType.of(Project.class))), Collections.singletonList(new MethodDeclaration(APPLY_METHOD_MODIFIERS, "apply", APPLY_METHOD_PARAMETERS, new GradleBlockStatement.BodyDeclaration(Collections.singletonList((Statement) language.transform(statement))))));
 
         ImporterTransformer.Imports imports = new ImporterTransformer.Imports();
         statement = statement.accept(new ImporterTransformer(imports));

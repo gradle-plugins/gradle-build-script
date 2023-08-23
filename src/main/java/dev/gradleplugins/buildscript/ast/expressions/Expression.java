@@ -27,24 +27,31 @@ public interface Expression extends Node {
         ReturnType visit(NullLiteralExpression expression);
         ReturnType visit(PropertyAccessExpression expression);
         ReturnType visit(LiteralExpression expression);
-        ReturnType visit(CastExpression expression);
-        ReturnType visit(AsExpression expression);
+        ReturnType visit(CastingExpression expression);
+        ReturnType visit(TypeComparisonExpression expression);
         ReturnType visit(SetLiteralExpression expression);
         ReturnType visit(StringLiteralExpression expression);
+        ReturnType visit(StringInterpolationExpression expression);
         ReturnType visit(BooleanLiteralExpression expression);
         ReturnType visit(MethodCallExpression expression);
         ReturnType visit(MapLiteralExpression expression);
         ReturnType visit(ClassLiteralExpression expression);
-        ReturnType visit(InstanceOfExpression expression);
         ReturnType visit(EnclosedExpression expression);
-        ReturnType visit(NotExpression expression);
+        ReturnType visit(CollectionLiteralExpression expression);
+        ReturnType visit(SafeNavigationExpression expression);
+        ReturnType visit(PrefixExpression expression);
+        ReturnType visit(PostfixExpression expression);
+
+        ReturnType visit(GroovyDslLiteral expression);
 
         ReturnType visit(TypeExpression expression);
 
+        ReturnType visit(TernaryExpression expression);
+
         ReturnType visit(CurrentScopeExpression expression); // ???
         ReturnType visit(ItExpression expression); // ???
+        ReturnType visit(DelegateExpression expression); // ???
         ReturnType visit(VariableDeclarationExpression expression); // ???
-        ReturnType visit(AssignExpression expression); // ???
         ReturnType visit(VariableDeclarator expression); // ???
 
         ReturnType visit(LambdaExpression expression);

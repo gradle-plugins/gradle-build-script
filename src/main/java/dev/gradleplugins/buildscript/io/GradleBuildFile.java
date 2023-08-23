@@ -17,7 +17,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -75,22 +74,12 @@ public final class GradleBuildFile implements ProjectBuildScript {
         return this;
     }
 
-    public GradleBuildFile append(String content) {
-        statements.add(dsl.literal(Collections.singletonList(content)));
-        writeScriptToFileSystem();
-        return this;
-    }
-
     public GradleBuildFile leftShift(Statement statement) {
         return append(statement);
     }
 
     public GradleBuildFile leftShift(Expression expression) {
         return append(expression);
-    }
-
-    public GradleBuildFile leftShift(String content) {
-        return append(content);
     }
 
     public GradleBuildFile useKotlinDsl() {

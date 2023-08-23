@@ -1,75 +1,122 @@
 package dev.gradleplugins.buildscript;
 
-import dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression;
-import dev.gradleplugins.buildscript.ast.expressions.PropertyAccessExpression;
-import dev.gradleplugins.buildscript.ast.statements.BlockStatement;
+import dev.gradleplugins.buildscript.ast.expressions.DelegateExpression;
+import dev.gradleplugins.buildscript.ast.expressions.ItExpression;
 import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
+import dev.gradleplugins.buildscript.ast.statements.MultiStatement;
+import dev.gradleplugins.buildscript.ast.type.ReferenceType;
 import dev.gradleplugins.buildscript.syntax.Syntax;
+import dev.gradleplugins.buildscript.syntax.normalizer.UseExplicitItTransformer;
+import dev.gradleplugins.buildscript.syntax.normalizer.UseExtensionAwareApiTransformer;
+import dev.gradleplugins.buildscript.syntax.normalizer.UseGetterTransformer;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 import static dev.gradleplugins.buildscript.ast.expressions.AssignmentExpression.assign;
-import static dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression.current;
 import static dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression.call;
+import static dev.gradleplugins.buildscript.ast.expressions.PropertyAccessExpression.extensionProperty;
 import static dev.gradleplugins.buildscript.ast.expressions.VariableDeclarationExpression.val;
-import static dev.gradleplugins.buildscript.ast.type.UnknownType.unknownType;
 import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
 import static dev.gradleplugins.buildscript.syntax.Syntax.string;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public interface GradleBlockStatementTester {
     Syntax syntax();
 
     @Test
     default void testLiteralBlockSelector() {
-        System.out.println(GradleBlockStatement.block(literal("foo"), val("myVar", assign(string("my-string"))).toStatement()).toString(syntax()));
-        assertTrue(new GradleBlockStatement(literal("foo"), new BlockStatement(Collections.singletonList(val("myVar", assign(string("my-string"))).toStatement()))).toString(syntax()).startsWith(expectedGradleBlock__foo_literal_selector()));
+        assertEquals(expectedGradleBlock__foo_literal_selector__val_myVar__assignedTo__bar_string(),
+                GradleBlockStatement.newBuilder()
+                        .withSelector(literal("foo"))
+                        .withBody(val("myVar", assign(string("bar"))).toStatement())
+                        .build().toString(syntax()));
     }
 
-    String expectedGradleBlock__foo_literal_selector();
+    String expectedGradleBlock__foo_literal_selector__val_myVar__assignedTo__bar_string();
 
     @Test
     default void testMethodBlockSelector() {
-        assertTrue(new GradleBlockStatement(call("register", string("foo")), new BlockStatement(Collections.singletonList(val("myVar", assign(string("my-string"))).toStatement()))).toString(syntax()).startsWith(expectedGradleBlock__register_method__foo_string_selector()));
+        assertEquals(expectedGradleBlock__register_method__foo_string_selector__val_myVar__assignedTo__bar_string(),
+                GradleBlockStatement.newBuilder()
+                        .withSelector(call("register", string("foo")))
+                        .withBody(val("myVar", assign(string("bar"))).toStatement())
+                        .build().toString(syntax()));
     }
 
-    String expectedGradleBlock__register_method__foo_string_selector();
+    String expectedGradleBlock__register_method__foo_string_selector__val_myVar__assignedTo__bar_string();
 
     @Test
     default void testLiteralBlockSelectorWithEmptyBlock() {
-        assertEquals(expectedGradleBlock__foo_literal_selector__empty_block(), new GradleBlockStatement(literal("foo"), new BlockStatement(Collections.emptyList())).toString(syntax()));
+        assertEquals(expectedGradleBlock__foo_literal_selector__empty_block(),
+                GradleBlockStatement.newBuilder()
+                        .withSelector(literal("foo"))
+                        .withEmptyBody()
+                        .build().toString(syntax()));
     }
 
     String expectedGradleBlock__foo_literal_selector__empty_block();
 
     @Test
     default void testLiteralBlockSelectorWithSingleStatementBlock() {
-        assertEquals(expectedGradleBlock__foo_literal_selector__call_someMethod(), new GradleBlockStatement(literal("foo"), new BlockStatement(Collections.singletonList(new MethodCallExpression(current(), "someMethod", Collections.emptyList()).toStatement()))).toString(syntax()));
+        DelegateExpression delegate = new DelegateExpression();
+        assertEquals(expectedGradleBlock__foo_literal_selector__call_someMethod_asStatement(),
+                GradleBlockStatement.newBuilder()
+                        .withSelector(literal("foo"))
+                        .withDelegate(delegate)
+                        .withBody(call(delegate, "someMethod").toStatement())
+                        .build().toString(syntax()));
     }
 
-    String expectedGradleBlock__foo_literal_selector__call_someMethod();
+    String expectedGradleBlock__foo_literal_selector__call_someMethod_asStatement();
+
+    @Test
+    default void testLiteralBlockSelectorWithSingleExpressionBlock() {
+        DelegateExpression delegate = new DelegateExpression();
+        assertEquals(expectedGradleBlock__foo_literal_selector__call_someMethod_asExpression(),
+                GradleBlockStatement.newBuilder()
+                        .withSelector(literal("foo"))
+                        .withDelegate(delegate)
+                        .withBody(call(delegate, "someMethod"))
+                        .build().toString(syntax()));
+    }
+
+    String expectedGradleBlock__foo_literal_selector__call_someMethod_asExpression();
 
     @Test
     default void testLiteralBlockSelectorWithMultiStatementBlock() {
-        assertEquals(expectedGradleBlock__foo_literal_selector__call_someMethod__call_someOtherMethod(), new GradleBlockStatement(literal("foo"), new BlockStatement(Arrays.asList(new MethodCallExpression(current(), "someMethod", Collections.emptyList()).toStatement(), new MethodCallExpression(current(), "someOtherMethod", Collections.emptyList()).toStatement()))).toString(syntax()));
+        DelegateExpression delegate = new DelegateExpression();
+        assertEquals(expectedGradleBlock__foo_literal_selector__call_someMethod__call_someOtherMethod(),
+                GradleBlockStatement.newBuilder()
+                        .withSelector(literal("foo"))
+                        .withDelegate(delegate)
+                        .withBody(MultiStatement.of(Arrays.asList(
+                                call(delegate, "someMethod").toStatement(),
+                                call(delegate, "someOtherMethod").toStatement())))
+                        .build().toString(syntax()));
     }
 
     String expectedGradleBlock__foo_literal_selector__call_someMethod__call_someOtherMethod();
 
     @Test
     default void testExtensionBlockSelector() {
-        assertEquals(expectedGradleBlock__foo_extension_selector__empty_block(), new GradleBlockStatement(new PropertyAccessExpression(unknownType(), PropertyAccessExpression.AccessType.EXTENSION, current(), "foo"), new BlockStatement(Collections.emptyList())).toString(syntax()));
+        assertEquals(expectedGradleBlock__foo_extension_selector__empty_block(),
+                GradleBlockStatement.newBuilder()
+                        .withSelector(extensionProperty("foo"))
+                        .withEmptyBody()
+                        .build().toString(syntax()));
     }
 
     String expectedGradleBlock__foo_extension_selector__empty_block();
 
-//    @Test
-//    default void testExtensionBlockSelectorPreferringExtensionAwareApi() {
-//        assertEquals(expectedGradleBlock__foo_extension_selector_using_ExtensionAware_API__empty_block(), new GradleBlockStatement(new GradleExtensionAccessExpression(null, "foo").use(GradleExtensionAccessExpression.ApiPreference.ExtensionAware), new BlockStatement(Collections.emptyList())).toString(syntax()));
-//    }
+    @Test
+    default void testExtensionBlockSelectorPreferringExtensionAwareApi() {
+        assertEquals(expectedGradleBlock__foo_extension_selector_using_ExtensionAware_API__empty_block(),
+                GradleBlockStatement.newBuilder()
+                        .withSelector(extensionProperty("foo"))
+                        .withEmptyBody()
+                        .build().accept(new UseExtensionAwareApiTransformer()).toString(syntax()));
+    }
 
     String expectedGradleBlock__foo_extension_selector_using_ExtensionAware_API__empty_block();
 
@@ -84,4 +131,100 @@ public interface GradleBlockStatementTester {
 
     // explicit it
     // renamed it
+
+    @Test
+    default void testBlockSelectorExplicitIt_delegate() {
+        DelegateExpression delegate = new DelegateExpression();
+        assertEquals(expectedGradleBlock__foo_literal_selector__explicit_it_someMethod_bar_string(),
+                GradleBlockStatement.newBuilder()
+                        .withSelector(literal("foo"))
+                        .withDelegate(delegate)
+                        .withBody(call(delegate, "someMethod", string("bar")))
+                        .build().accept(new UseExplicitItTransformer()).toString(syntax()));
+    }
+
+    @Test
+    default void testBlockSelectorExplicitIt_it() {
+        ItExpression it = new ItExpression();
+        assertEquals(expectedGradleBlock__foo_literal_selector__explicit_it_someMethod_bar_string(),
+                GradleBlockStatement.newBuilder()
+                        .withSelector(literal("foo"))
+                        .withBody(call(it, "someMethod", string("bar")))
+                        .build().accept(new UseExplicitItTransformer()).toString(syntax()));
+    }
+
+    String expectedGradleBlock__foo_literal_selector__explicit_it_someMethod_bar_string();
+
+    @Test
+    default void testBlockSelectorExplicitNamed() {
+        DelegateExpression delegate = new DelegateExpression();
+        assertEquals(expectedGradleBlock__foo_literal_selector__explicit_it_named_task_someMethod_bar_string(),
+                GradleBlockStatement.newBuilder()
+                        .withSelector(literal("foo"))
+                        .withDelegate(delegate)
+                        .withBody(call(delegate, "someMethod", string("bar")))
+                        .build().accept(new UseExplicitItTransformer("task")).toString(syntax()));
+    }
+
+    @Test
+    default void testBlockSelectorExplicitNamedIt() {
+        ItExpression it = new ItExpression();
+        assertEquals(expectedGradleBlock__foo_literal_selector__explicit_it_named_task_someMethod_bar_string(),
+                GradleBlockStatement.newBuilder()
+                        .withSelector(literal("foo"))
+                        .withIt(it)
+                        .withBody(call(it, "someMethod", string("bar")))
+                        .build().accept(new UseExplicitItTransformer("task")).toString(syntax()));
+    }
+
+    String expectedGradleBlock__foo_literal_selector__explicit_it_named_task_someMethod_bar_string();
+
+    @Test
+    default void testBlockSelectorExplicitNamedAndType() {
+        DelegateExpression delegate = new DelegateExpression();
+        assertEquals(expectedGradleBlock__foo_literal_selector__Task_task__explicit_it_named_task_someMethod_bar_string(),
+                GradleBlockStatement.newBuilder()
+                        .withSelector(literal("foo"))
+                        .withDelegate(delegate)
+                        .withBody(call(delegate, "someMethod", string("bar")))
+                        .build().accept(new UseExplicitItTransformer("task", new ReferenceType("Task"))).toString(syntax()));
+    }
+
+    @Test
+    default void testBlockSelectorExplicitNamedAndTypeIt() {
+        ItExpression it = new ItExpression();
+        assertEquals(expectedGradleBlock__foo_literal_selector__Task_task__explicit_it_named_task_someMethod_bar_string(),
+                GradleBlockStatement.newBuilder()
+                        .withSelector(literal("foo"))
+                        .withIt(it)
+                        .withBody(call(it, "someMethod", string("bar")))
+                        .build().accept(new UseExplicitItTransformer("task", new ReferenceType("Task"))).toString(syntax()));
+    }
+
+    String expectedGradleBlock__foo_literal_selector__Task_task__explicit_it_named_task_someMethod_bar_string();
+
+
+    @Test
+    default void testBlockSelectorGetter() {
+        DelegateExpression delegate = new DelegateExpression();
+        assertEquals(expectedGradleBlock__foo_literal_selector__it_as_getter_someMethod_bar_string(),
+                GradleBlockStatement.newBuilder()
+                        .withSelector(literal("foo"))
+                        .withDelegate(delegate)
+                        .withBody(call(delegate, "someMethod", string("bar")))
+                        .build().accept(new UseGetterTransformer()).toString(syntax()));
+    }
+
+    @Test
+    default void testBlockSelectorGetter_it() {
+        ItExpression it = new ItExpression();
+        assertEquals(expectedGradleBlock__foo_literal_selector__it_as_getter_someMethod_bar_string(),
+                GradleBlockStatement.newBuilder()
+                        .withSelector(literal("foo"))
+                        .withIt(it)
+                        .withBody(call(it, "someMethod", string("bar")))
+                        .build().accept(new UseGetterTransformer()).toString(syntax()));
+    }
+
+    String expectedGradleBlock__foo_literal_selector__it_as_getter_someMethod_bar_string();
 }

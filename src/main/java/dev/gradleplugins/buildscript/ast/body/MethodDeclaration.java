@@ -6,7 +6,7 @@ import dev.gradleplugins.buildscript.ast.statements.BlockStatement;
 import java.util.List;
 import java.util.Set;
 
-public final class MethodDeclaration implements BodyDeclaration<MethodDeclaration> {
+public final class MethodDeclaration implements dev.gradleplugins.buildscript.ast.body.BodyDeclaration<MethodDeclaration> {
     private final Set<Modifier> modifiers;
     private final String methodName;
     private final List<Parameter> parameters;

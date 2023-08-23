@@ -1,6 +1,6 @@
 package dev.gradleplugins.buildscript;
 
-import dev.gradleplugins.buildscript.ast.statements.StaticImportDeclaration;
+import dev.gradleplugins.buildscript.ast.statements.ImportDeclaration;
 import dev.gradleplugins.buildscript.syntax.Syntax;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +12,7 @@ public interface StaticImportDeclarationTester {
     @Test
     default void testStaticImportMethod() {
         assertEquals(expectedStaticImport__java_util_Collections_emptyList(),
-                new StaticImportDeclaration("java.util.Collections.emptyList").toString(syntax()));
+                new ImportDeclaration(ImportDeclaration.ImportType.STATIC, "java.util.Collections.emptyList").toString(syntax()));
     }
 
     String expectedStaticImport__java_util_Collections_emptyList();
@@ -20,7 +20,7 @@ public interface StaticImportDeclarationTester {
     @Test
     default void testStaticImportMethods() {
         assertEquals(expectedImport__java_util_Collections(),
-                new StaticImportDeclaration("java.util.Collections.*").toString(syntax()));
+                new ImportDeclaration(ImportDeclaration.ImportType.STATIC, "java.util.Collections.*").toString(syntax()));
     }
 
     String expectedImport__java_util_Collections();

@@ -33,7 +33,7 @@ class Java11SyntaxTests extends SyntaxTester {
 
     @Override
     public String expectedCommentedSingleLine__call_someMethod_no_args__call_someOtherMethod_foo_string() {
-        return "// someMethod();\n// someOtherMethod();";
+        return "// someMethod();\n// someOtherMethod(\"foo\");";
     }
 
     @Override
@@ -57,38 +57,63 @@ class Java11SyntaxTests extends SyntaxTester {
     }
 
     @Override
-    public String expectedGradleBlock__foo_literal_selector() {
-        return "foo(it -> ";
+    public String expectedGradleBlock__foo_literal_selector__val_myVar__assignedTo__bar_string() {
+        return "foo(it -> { final var myVar = \"bar\"; });";
     }
 
     @Override
-    public String expectedGradleBlock__register_method__foo_string_selector() {
-        return "register(\"foo\", it -> ";
+    public String expectedGradleBlock__register_method__foo_string_selector__val_myVar__assignedTo__bar_string() {
+        return "register(\"foo\", it -> { final var myVar = \"bar\"; });";
     }
 
     @Override
     public String expectedGradleBlock__foo_literal_selector__empty_block() {
-        return "foo(__ -> {});";
+        return "foo(it -> {});";
     }
 
     @Override
-    public String expectedGradleBlock__foo_literal_selector__call_someMethod() {
+    public String expectedGradleBlock__foo_literal_selector__call_someMethod_asStatement() {
+        return "foo(it -> { it.someMethod(); });";
+    }
+
+    @Override
+    public String expectedGradleBlock__foo_literal_selector__call_someMethod_asExpression() {
         return "foo(it -> it.someMethod());";
     }
 
     @Override
     public String expectedGradleBlock__foo_literal_selector__call_someMethod__call_someOtherMethod() {
-        return "foo(it ->\n  it.someMethod();\n  it.someOtherMethod();\n});";
+        return "foo(it -> {\n  it.someMethod();\n  it.someOtherMethod();\n});";
     }
 
     @Override
     public String expectedGradleBlock__foo_extension_selector__empty_block() {
-        return "getExtensions().configure(\"foo\", __ -> {});";
+        return "getExtensions().configure(\"foo\", it -> {});";
     }
 
     @Override
     public String expectedGradleBlock__foo_extension_selector_using_ExtensionAware_API__empty_block() {
-        return "getExtensions().configure(\"foo\", __ -> {});";
+        return "getExtensions().configure(\"foo\", it -> {});";
+    }
+
+    @Override
+    public String expectedGradleBlock__foo_literal_selector__explicit_it_someMethod_bar_string() {
+        return "foo(it -> it.someMethod(\"bar\"));";
+    }
+
+    @Override
+    public String expectedGradleBlock__foo_literal_selector__explicit_it_named_task_someMethod_bar_string() {
+        return "foo(task -> task.someMethod(\"bar\"));";
+    }
+
+    @Override
+    public String expectedGradleBlock__foo_literal_selector__Task_task__explicit_it_named_task_someMethod_bar_string() {
+        return "foo((Task task) -> task.someMethod(\"bar\"));";
+    }
+
+    @Override
+    public String expectedGradleBlock__foo_literal_selector__it_as_getter_someMethod_bar_string() {
+        return "getFoo().someMethod(\"bar\");";
     }
 
     @Override
@@ -217,8 +242,18 @@ class Java11SyntaxTests extends SyntaxTester {
     }
 
     @Override
+    public String expectedCast__myExpression_castTo_String() {
+        return "(String) myExpression";
+    }
+
+    @Override
     public String expectedCast__myExpression_as_String() {
         return "(String) myExpression";
+    }
+
+    @Override
+    public String expectedCast__myExpression_safeAs_String() {
+        return "myExpression instanceof String ? (String) myExpression : null";
     }
 
     @Override

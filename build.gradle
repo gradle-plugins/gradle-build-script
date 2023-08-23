@@ -15,7 +15,7 @@ tasks.named('test', Test) {
 	it.useJUnitPlatform()
 }
 
-def antlrVersion= '4.9.3'
+def antlrVersion= '4.13.0'
 dependencies {
 	compileOnly 'dev.gradleplugins:gradle-api:6.2.2'
 	testImplementation 'dev.gradleplugins:gradle-api:6.2.2'

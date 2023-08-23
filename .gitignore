@@ -4,3 +4,6 @@
 # Ignore Gradle build output directory
 build
 .idea
+src/main/gen/
+src/main/antlr/gen/
+src/main/antlr/*.tokens

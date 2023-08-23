@@ -1,10 +1,10 @@
 package dev.gradleplugins.buildscript.blocks;
 
-import dev.gradleplugins.buildscript.ast.statements.BlockStatement;
+import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
 
 import java.util.function.Consumer;
 
-public final class PluginManagementBlock extends BlockStatement.Builder<PluginManagementBlock> {
+public final class PluginManagementBlock extends GradleBlockStatement.BlockBuilder<PluginManagementBlock> {
     public PluginManagementBlock() {
         super(PluginManagementBlock.class);
     }

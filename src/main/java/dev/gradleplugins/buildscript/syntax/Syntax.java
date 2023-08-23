@@ -4,6 +4,7 @@ import dev.gradleplugins.buildscript.ast.ExpressionBuilder;
 import dev.gradleplugins.buildscript.ast.Node;
 import dev.gradleplugins.buildscript.ast.expressions.BooleanLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
+import dev.gradleplugins.buildscript.ast.expressions.GroovyDslLiteral;
 import dev.gradleplugins.buildscript.ast.expressions.LambdaExpression;
 import dev.gradleplugins.buildscript.ast.expressions.LiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MapLiteralExpression;
@@ -13,9 +14,8 @@ import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
 import dev.gradleplugins.buildscript.ast.statements.AssertStatement;
 import dev.gradleplugins.buildscript.ast.statements.CommentedStatement;
-import dev.gradleplugins.buildscript.ast.statements.GroovyDslLiteral;
+import dev.gradleplugins.buildscript.ast.statements.ImportDeclaration;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
-import dev.gradleplugins.buildscript.ast.statements.TypeImportDeclaration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,8 +71,8 @@ public interface Syntax {
         return new AssertStatement(expression, null);
     }
 
-    static TypeImportDeclaration importClass(Class<?> type) {
-        return new TypeImportDeclaration(type.getCanonicalName());
+    static ImportDeclaration importClass(Class<?> type) {
+        return new ImportDeclaration(ImportDeclaration.ImportType.TYPE, type.getCanonicalName());
     }
 
     static ExpressionBuilder<PropertyAccessExpression> extensionOf(String extensionName) {
@@ -143,6 +143,15 @@ public interface Syntax {
                 @Override
                 public String toString() {
                     return s;
+                }
+            };
+        }
+
+        static Content empty() {
+            return new Content() {
+                @Override
+                public Iterator<String> iterator() {
+                    return Stream.<String>empty().iterator();
                 }
             };
         }

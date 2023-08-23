@@ -5,6 +5,7 @@ import dev.gradleplugins.buildscript.syntax.normalizer.Java8SetLiteralTransforme
 import dev.gradleplugins.buildscript.syntax.normalizer.Java8VariableTransformer;
 import dev.gradleplugins.buildscript.syntax.normalizer.JavaCastingTransformer;
 import dev.gradleplugins.buildscript.syntax.normalizer.JavaPropertyAccessTransformer;
+import dev.gradleplugins.buildscript.syntax.normalizer.JavaSafeNavigationTransformer;
 
 import java.util.Arrays;
 
@@ -15,7 +16,8 @@ public class Java8Compatibility extends ASTNormalizer {
                 new Java8SetLiteralTransformer(),
                 new Java8MapLiteralTransformer(),
                 new Java8VariableTransformer(),
-                new JavaCastingTransformer()
+                new JavaCastingTransformer(),
+                new JavaSafeNavigationTransformer()
         ));
     }
 }

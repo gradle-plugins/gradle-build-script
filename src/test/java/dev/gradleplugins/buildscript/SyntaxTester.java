@@ -2,9 +2,9 @@ package dev.gradleplugins.buildscript;
 
 public abstract class SyntaxTester implements MapLiteralExpressionTester
     , StringLiteralExpressionTester
-    , InstanceOfExpressionTester
+    , TypeComparisonExpressionTester
     , MethodCallExpressionTester
-    , CastExpressionTester
+    , CastingExpressionTester
     , BooleanLiteralExpressionTester
     , AssertStatementTester
     , TypeImportDeclarationTester

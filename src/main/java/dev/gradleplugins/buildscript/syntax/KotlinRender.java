@@ -2,27 +2,31 @@ package dev.gradleplugins.buildscript.syntax;
 
 import dev.gradleplugins.buildscript.ast.Node;
 import dev.gradleplugins.buildscript.ast.comments.Comment;
-import dev.gradleplugins.buildscript.ast.expressions.AsExpression;
-import dev.gradleplugins.buildscript.ast.expressions.AssignExpression;
 import dev.gradleplugins.buildscript.ast.expressions.AssignmentExpression;
 import dev.gradleplugins.buildscript.ast.expressions.BooleanLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.CastingExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression;
+import dev.gradleplugins.buildscript.ast.expressions.DelegateExpression;
 import dev.gradleplugins.buildscript.ast.expressions.DelegationSpecifier;
 import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.expressions.FieldAccessExpression;
 import dev.gradleplugins.buildscript.ast.expressions.InfixExpression;
-import dev.gradleplugins.buildscript.ast.expressions.InstanceOfExpression;
 import dev.gradleplugins.buildscript.ast.expressions.ItExpression;
 import dev.gradleplugins.buildscript.ast.expressions.LambdaExpression;
 import dev.gradleplugins.buildscript.ast.expressions.LiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MapLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression;
-import dev.gradleplugins.buildscript.ast.expressions.NotExpression;
 import dev.gradleplugins.buildscript.ast.expressions.NullLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.PostfixExpression;
+import dev.gradleplugins.buildscript.ast.expressions.PrefixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
+import dev.gradleplugins.buildscript.ast.expressions.SafeNavigationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.StringInterpolationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.TernaryExpression;
+import dev.gradleplugins.buildscript.ast.expressions.TypeComparisonExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarator;
 import dev.gradleplugins.buildscript.ast.statements.AssertStatement;
@@ -30,10 +34,9 @@ import dev.gradleplugins.buildscript.ast.statements.CommentedStatement;
 import dev.gradleplugins.buildscript.ast.statements.ExpressionStatement;
 import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
 import dev.gradleplugins.buildscript.ast.statements.GroupStatement;
+import dev.gradleplugins.buildscript.ast.statements.ImportDeclaration;
 import dev.gradleplugins.buildscript.ast.statements.MultiStatement;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
-import dev.gradleplugins.buildscript.ast.statements.StaticImportDeclaration;
-import dev.gradleplugins.buildscript.ast.statements.TypeImportDeclaration;
 import dev.gradleplugins.buildscript.ast.type.ValType;
 import dev.gradleplugins.buildscript.ast.type.VarType;
 import dev.gradleplugins.buildscript.blocks.ApplyStatement;
@@ -48,6 +51,7 @@ import java.util.stream.StreamSupport;
 
 import static dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression.current;
 import static dev.gradleplugins.buildscript.ast.type.ReferenceType.stringType;
+import static dev.gradleplugins.buildscript.ast.type.UnknownType.unknownType;
 import static dev.gradleplugins.buildscript.syntax.Syntax.string;
 
 public final class KotlinRender implements RenderableSyntax.Renderer {
@@ -114,12 +118,13 @@ public final class KotlinRender implements RenderableSyntax.Renderer {
             }
         }
 
-        public Content visit(InstanceOfExpression expression) {
-            return Content.of(render(expression.getExpression()) + " is " + expression.getInstanceType());
-        }
-
-        public Content visit(AsExpression expression) {
-            return Content.of(render(expression.getExpression()) + " as " + expression.getType());
+        public Content visit(TypeComparisonExpression expression) {
+            switch (expression.getComparisonType()) {
+                case INSTANCE_OF: return Content.of(render(expression.getExpression()) + " is " + expression.getInstanceType());
+                case IS: return Content.of(render(expression.getExpression()) + " is " + expression.getInstanceType());
+                case SAFE_IS: return Content.of(render(expression.getExpression()) + " is? " + expression.getInstanceType());
+                default: throw invalidLanguageNode();
+            }
         }
 
         public Content visit(BooleanLiteralExpression expression) {
@@ -138,12 +143,12 @@ public final class KotlinRender implements RenderableSyntax.Renderer {
             return Content.of(builder.toString());
         }
 
-        public Content visit(TypeImportDeclaration statement) {
-            return Content.of("import " + statement.getName());
-        }
-
-        public Content visit(StaticImportDeclaration statement) {
-            return Content.of("import static " + statement.getName());
+        public Content visit(ImportDeclaration statement) {
+            switch (statement.getImportType()) {
+                case STATIC: return Content.of("import static " + statement.getName());
+                case TYPE: return Content.of("import " + statement.getName());
+                default: throw invalidLanguageNode();
+            }
         }
 
         public Content visit(MethodCallExpression expression) {
@@ -195,18 +200,13 @@ public final class KotlinRender implements RenderableSyntax.Renderer {
             return Content.of("(" + render(expression.getInner()) + ")");
         }
 
-        @Override
-        public Content visit(NotExpression expression) {
-            return Content.of("!" + render(expression.getExpression()));
-        }
-
         public Content visit(FieldAccessExpression expression) {
             return Content.of(render(expression.getScope()) + "." + expression.getName());
         }
 
         public Content visit(QualifiedExpression expression) {
             final StringBuilder builder = new StringBuilder();
-            if (!(expression.getLeftExpression() instanceof CurrentScopeExpression)) {
+            if (!(expression.getLeftExpression() instanceof CurrentScopeExpression) && !(expression.getLeftExpression() instanceof DelegateExpression)) {
                 builder.append(render(expression.getLeftExpression()));
                 builder.append(".");
             }
@@ -214,27 +214,8 @@ public final class KotlinRender implements RenderableSyntax.Renderer {
             return Content.of(builder.toString());
         }
 
-        public Content visit(AssignExpression expression) {
-            return Content.of(render(expression.getTarget()) + " = " + render(expression.getValue()));
-        }
-
         public Content visit(GradleBlockStatement statement) {
-            final Content.Builder contentBuilder = Content.builder();
-            statement.getBlock().forEach(it -> contentBuilder.add(it.accept(this)));
-            Content inner = contentBuilder.build();
-
-            final Content.Builder builder = Content.builder();
-
-            if (inner.isEmpty()) {
-                builder.add(render(statement.getSelector()) + " {}");
-            } else if (inner.hasSingleLine()) {
-                builder.add(render(statement.getSelector()) + " { " + inner + " }");
-            } else {
-                builder.add(render(statement.getSelector()) + " {");
-                builder.add(inner.indent());
-                builder.add("}");
-            }
-            return builder.build();
+            return Content.of(render(statement.getSelector()) + " " + render(statement.getBody()));
         }
 
         public Content visit(MultiStatement statement) {
@@ -278,22 +259,88 @@ public final class KotlinRender implements RenderableSyntax.Renderer {
 
         @Override
         public Content visit(LambdaExpression expression) {
-            return Content.of("{ " + expression.getBody().accept(new Node.Visitor<String>() {
+            final Content inner = expression.getBody().map(it -> it.accept(new Node.Visitor<Content>() {
                 @Override
-                public String visit(Statement statement) {
-                    return statement.accept(Render.this).toString();
+                public Content visit(Statement statement) {
+                    return statement.accept(KotlinRender.Render.this);
                 }
 
                 @Override
-                public String visit(Expression expression) {
-                    return expression.accept(Render.this).toString();
+                public Content visit(Expression expression) {
+                    return expression.accept(KotlinRender.Render.this);
                 }
 
                 @Override
-                public String visit(Comment comment) {
+                public Content visit(Comment comment) {
                     throw new UnsupportedOperationException();
                 }
-            }) + " }");
+            })).orElse(Content.empty());
+
+            String parameters = expression.getParameters().stream().map(it -> {
+                if (it.getType().equals(unknownType())) {
+                    return it.getName();
+                }
+                return it.getName() + ": " + it.getType();
+            }).collect(Collectors.joining(", "));
+            if (expression.getParameters() instanceof LambdaExpression.SingleImplicitParameter) {
+                parameters = "";
+            } else if (expression.getParameters().count() == 0) {
+                parameters = " ->";
+            } else if (!parameters.isEmpty()) {
+                parameters = " " + parameters + " ->";
+            }
+
+            if (inner.isEmpty()) {
+                return Content.of("{}");
+            } else if (inner.hasSingleLine()) {
+                return Content.of("{" + parameters + " " + inner + " }");
+            } else {
+                return Content.builder().add("{" + parameters).add(inner.indent()).add("}").build();
+            }
+        }
+
+        @Override
+        public Content visit(StringInterpolationExpression expression) {
+            final StringBuilder builder = new StringBuilder();
+            builder.append('"');
+            for (Expression e : expression) {
+                if (e instanceof StringLiteralExpression) {
+                    builder.append(((StringLiteralExpression) e).get());
+                } else {
+                    builder.append("${").append(render(e)).append("}");
+                }
+            }
+            builder.append('"');
+            return Content.of(builder.toString());
+        }
+
+        @Override
+        public Content visit(SafeNavigationExpression expression) {
+            return Content.of(render(expression.getObjectExpression()) + "?." + render(expression.getPropertyExpression()));
+        }
+
+        @Override
+        public Content visit(CastingExpression expression) {
+            switch (expression.getCastingType()) {
+                case SAFE_AS: return Content.of(render(expression.getExpression()) + " as? " + expression.getType());
+                case AS: return Content.of(render(expression.getExpression()) + " as " + expression.getType());
+                default: throw invalidLanguageNode();
+            }
+        }
+
+        @Override
+        public Content visit(TernaryExpression expression) {
+            return Content.of("if " + render(expression.getCondition()) + " then " + render(expression.getTrueExpression()) + " else " + render(expression.getFalseExpression()));
+        }
+
+        @Override
+        public Content visit(PrefixExpression expression) {
+            return Content.of(expression.getOperator() + render(expression.getExpression()));
+        }
+
+        @Override
+        public Content visit(PostfixExpression expression) {
+            return Content.of(render(expression.getExpression()) + expression.getOperator());
         }
     }
 }

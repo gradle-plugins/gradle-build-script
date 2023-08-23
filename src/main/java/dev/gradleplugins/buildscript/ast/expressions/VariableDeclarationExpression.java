@@ -38,10 +38,12 @@ public final class VariableDeclarationExpression implements Expression {
         return visitor.visit(this);
     }
 
+    // FIXME: variable declaration should probably be statement
     public static VariableDeclarationExpression val(String variableName, Expression initializer) {
         return new VariableDeclarationExpression(Collections.emptyList(), ValType.valType(), Collections.singletonList(new VariableDeclarator(ValType.valType(), variableName, initializer)));
     }
 
+    // FIXME: variable declaration should probably be statement
     public static VariableDeclarationExpression var(String variableName, Expression initializer) {
         return new VariableDeclarationExpression(Collections.emptyList(), VarType.varType(), Collections.singletonList(new VariableDeclarator(VarType.varType(), variableName, initializer)));
     }

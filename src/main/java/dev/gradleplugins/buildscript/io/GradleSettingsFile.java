@@ -18,7 +18,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -99,22 +98,12 @@ public final class GradleSettingsFile implements SettingsBuildScript {
         return this;
     }
 
-    public GradleSettingsFile append(String content) {
-        statements.add(dsl.literal(Collections.singletonList(content)));
-        writeScriptToFileSystem();
-        return this;
-    }
-
     public GradleSettingsFile leftShift(Statement statement) {
         return append(statement);
     }
 
     public GradleSettingsFile leftShift(Expression expression) {
         return append(expression);
-    }
-
-    public GradleSettingsFile leftShift(String content) {
-        return append(content);
     }
 
     private void writeScriptToFileSystem() {

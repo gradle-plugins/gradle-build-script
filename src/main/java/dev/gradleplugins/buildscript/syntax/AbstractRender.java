@@ -2,43 +2,45 @@ package dev.gradleplugins.buildscript.syntax;
 
 import dev.gradleplugins.buildscript.ast.body.ClassDeclaration;
 import dev.gradleplugins.buildscript.ast.comments.LineComment;
-import dev.gradleplugins.buildscript.ast.expressions.AsExpression;
-import dev.gradleplugins.buildscript.ast.expressions.AssignExpression;
 import dev.gradleplugins.buildscript.ast.expressions.AssignmentExpression;
 import dev.gradleplugins.buildscript.ast.expressions.BooleanLiteralExpression;
-import dev.gradleplugins.buildscript.ast.expressions.CastExpression;
+import dev.gradleplugins.buildscript.ast.expressions.CastingExpression;
 import dev.gradleplugins.buildscript.ast.expressions.ClassLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.CollectionLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression;
+import dev.gradleplugins.buildscript.ast.expressions.DelegateExpression;
 import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.expressions.FieldAccessExpression;
+import dev.gradleplugins.buildscript.ast.expressions.GroovyDslLiteral;
 import dev.gradleplugins.buildscript.ast.expressions.InfixExpression;
-import dev.gradleplugins.buildscript.ast.expressions.InstanceOfExpression;
 import dev.gradleplugins.buildscript.ast.expressions.ItExpression;
 import dev.gradleplugins.buildscript.ast.expressions.LambdaExpression;
 import dev.gradleplugins.buildscript.ast.expressions.LiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MapLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression;
-import dev.gradleplugins.buildscript.ast.expressions.NotExpression;
 import dev.gradleplugins.buildscript.ast.expressions.NullLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.PostfixExpression;
+import dev.gradleplugins.buildscript.ast.expressions.PrefixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.PropertyAccessExpression;
 import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
+import dev.gradleplugins.buildscript.ast.expressions.SafeNavigationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.StringInterpolationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.TernaryExpression;
+import dev.gradleplugins.buildscript.ast.expressions.TypeComparisonExpression;
 import dev.gradleplugins.buildscript.ast.expressions.TypeExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarator;
 import dev.gradleplugins.buildscript.ast.statements.AssertStatement;
-import dev.gradleplugins.buildscript.ast.statements.BlockStatement;
 import dev.gradleplugins.buildscript.ast.statements.CommentedStatement;
 import dev.gradleplugins.buildscript.ast.statements.ExpressionStatement;
 import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
-import dev.gradleplugins.buildscript.ast.statements.GroovyDslLiteral;
 import dev.gradleplugins.buildscript.ast.statements.GroupStatement;
+import dev.gradleplugins.buildscript.ast.statements.ImportDeclaration;
 import dev.gradleplugins.buildscript.ast.statements.MultiStatement;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
-import dev.gradleplugins.buildscript.ast.statements.StaticImportDeclaration;
-import dev.gradleplugins.buildscript.ast.statements.TypeImportDeclaration;
 import dev.gradleplugins.buildscript.blocks.PluginsDslBlock;
 
 public class AbstractRender implements Statement.Visitor<Syntax.Content>, Expression.Visitor<Syntax.Content> {
@@ -78,22 +80,17 @@ public class AbstractRender implements Statement.Visitor<Syntax.Content>, Expres
     }
 
     @Override
-    public Syntax.Content visit(CastExpression expression) {
-        throw invalidLanguageNode();
-    }
-
-    @Override
-    public Syntax.Content visit(AsExpression expression) {
-        throw invalidLanguageNode();
-    }
-
-    @Override
     public Syntax.Content visit(SetLiteralExpression expression) {
         throw invalidLanguageNode();
     }
 
     @Override
     public Syntax.Content visit(StringLiteralExpression expression) {
+        throw invalidLanguageNode();
+    }
+
+    @Override
+    public Syntax.Content visit(StringInterpolationExpression expression) {
         throw invalidLanguageNode();
     }
 
@@ -118,22 +115,47 @@ public class AbstractRender implements Statement.Visitor<Syntax.Content>, Expres
     }
 
     @Override
-    public Syntax.Content visit(InstanceOfExpression expression) {
-        throw invalidLanguageNode();
-    }
-
-    @Override
     public Syntax.Content visit(EnclosedExpression expression) {
         throw invalidLanguageNode();
     }
 
     @Override
-    public Syntax.Content visit(NotExpression expression) {
+    public Syntax.Content visit(CollectionLiteralExpression expression) {
+        throw invalidLanguageNode();
+    }
+
+    @Override
+    public Syntax.Content visit(SafeNavigationExpression expression) {
+        throw invalidLanguageNode();
+    }
+
+    @Override
+    public Syntax.Content visit(PrefixExpression expression) {
+        throw invalidLanguageNode();
+    }
+
+    @Override
+    public Syntax.Content visit(PostfixExpression expression) {
+        throw invalidLanguageNode();
+    }
+
+    @Override
+    public Syntax.Content visit(CastingExpression expression) {
+        throw invalidLanguageNode();
+    }
+
+    @Override
+    public Syntax.Content visit(TypeComparisonExpression expression) {
         throw invalidLanguageNode();
     }
 
     @Override
     public Syntax.Content visit(TypeExpression expression) {
+        throw invalidLanguageNode();
+    }
+
+    @Override
+    public Syntax.Content visit(TernaryExpression expression) {
         throw invalidLanguageNode();
     }
 
@@ -148,12 +170,12 @@ public class AbstractRender implements Statement.Visitor<Syntax.Content>, Expres
     }
 
     @Override
-    public Syntax.Content visit(VariableDeclarationExpression expression) {
+    public Syntax.Content visit(DelegateExpression expression) {
         throw invalidLanguageNode();
     }
 
     @Override
-    public Syntax.Content visit(AssignExpression expression) {
+    public Syntax.Content visit(VariableDeclarationExpression expression) {
         throw invalidLanguageNode();
     }
 
@@ -173,7 +195,7 @@ public class AbstractRender implements Statement.Visitor<Syntax.Content>, Expres
     }
 
     @Override
-    public Syntax.Content visit(GroovyDslLiteral statement) {
+    public Syntax.Content visit(GroovyDslLiteral expression) {
         throw invalidLanguageNode();
     }
 
@@ -193,17 +215,7 @@ public class AbstractRender implements Statement.Visitor<Syntax.Content>, Expres
     }
 
     @Override
-    public Syntax.Content visit(TypeImportDeclaration statement) {
-        throw invalidLanguageNode();
-    }
-
-    @Override
-    public Syntax.Content visit(StaticImportDeclaration statement) {
-        throw invalidLanguageNode();
-    }
-
-    @Override
-    public Syntax.Content visit(BlockStatement statement) {
+    public Syntax.Content visit(ImportDeclaration statement) {
         throw invalidLanguageNode();
     }
 
@@ -234,7 +246,7 @@ public class AbstractRender implements Statement.Visitor<Syntax.Content>, Expres
         return builder.build();
     }
 
-    private static RuntimeException invalidLanguageNode() {
+    protected static RuntimeException invalidLanguageNode() {
         return new UnsupportedOperationException("Not a valid node for this language");
     }
 }

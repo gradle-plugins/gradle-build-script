@@ -1,15 +1,11 @@
 package dev.gradleplugins.buildscript.syntax.normalizer;
 
-import dev.gradleplugins.buildscript.ast.expressions.AssignExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.expressions.FieldAccessExpression;
+import dev.gradleplugins.buildscript.ast.expressions.InfixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression;
 import dev.gradleplugins.buildscript.ast.expressions.PropertyAccessExpression;
 import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
-import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
-import dev.gradleplugins.buildscript.ast.statements.ExpressionStatement;
-import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
-import dev.gradleplugins.buildscript.ast.statements.Statement;
 import dev.gradleplugins.buildscript.syntax.ASTTransformer;
 
 import java.util.Arrays;
@@ -37,7 +33,9 @@ public final class KotlinPropertyAccessTransformer implements ASTTransformer {
         } else if (expression.getAccessType().equals(PropertyAccessExpression.AccessType.EXTRA)) {
             return new MethodCallExpression(new QualifiedExpression(expression.getType(), expression.getObjectExpression(), literal("extra")), "get", Collections.singletonList(string(expression.getPropertyName()))).accept(this);
         } else if (expression.getAccessType().equals(PropertyAccessExpression.AccessType.EXTENSION)) {
-            return new MethodCallExpression(new QualifiedExpression(objectExpression, literal("extensions")), "getByName", Collections.singletonList(new StringLiteralExpression(expression.getPropertyName()))).accept(this);
+            return new QualifiedExpression(objectExpression, literal(expression.getPropertyName())).accept(this);
+            // TODO: There should be a decision regarding if an extension is forced to access via API or not
+//            return new MethodCallExpression(new QualifiedExpression(objectExpression, literal("extensions")), "getByName", Collections.singletonList(new StringLiteralExpression(expression.getPropertyName()))).accept(this);
         } else {
             throw new UnsupportedOperationException();
         }
@@ -54,13 +52,13 @@ public final class KotlinPropertyAccessTransformer implements ASTTransformer {
 //    }
 
     @Override
-    public Expression visit(AssignExpression expression) {
-        if (expression.getTarget() instanceof PropertyAccessExpression) {
-            final PropertyAccessExpression target = (PropertyAccessExpression) expression.getTarget();
+    public Expression visit(InfixExpression expression) {
+        if (expression.getOperator().equals(InfixExpression.Operator.Assignment) && expression.getLeftExpression() instanceof PropertyAccessExpression) {
+            final PropertyAccessExpression target = (PropertyAccessExpression) expression.getLeftExpression();
             final Expression objectExpression = target.getObjectExpression();
-            final Expression valueExpression = expression.getValue();
+            final Expression valueExpression = expression.getRightExpression();
             if (target.getAccessType().equals(PropertyAccessExpression.AccessType.EXTRA)) {
-                return new MethodCallExpression(new QualifiedExpression(expression.getType(), objectExpression, literal("extra")), "set", Arrays.asList(string(target.getPropertyName()), expression.getValue())).accept(this);
+                return new MethodCallExpression(new QualifiedExpression(expression.getType(), objectExpression, literal("extra")), "set", Arrays.asList(string(target.getPropertyName()), valueExpression)).accept(this);
             } else if (target.getAccessType().equals(PropertyAccessExpression.AccessType.GRADLE)) {
                 return new MethodCallExpression(target, "set", Collections.singletonList(valueExpression)).accept(this);
             }

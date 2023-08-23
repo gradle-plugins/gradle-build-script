@@ -1,23 +1,14 @@
 package dev.gradleplugins.buildscript;
 
 import dev.gradleplugins.buildscript.ast.Node;
-import dev.gradleplugins.buildscript.ast.statements.GroovyDslLiteral;
-import dev.gradleplugins.buildscript.ast.statements.Statement;
 import dev.gradleplugins.buildscript.syntax.GroovyCompatibility;
 import dev.gradleplugins.buildscript.syntax.GroovyRender;
 import dev.gradleplugins.buildscript.syntax.KotlinCompatibility;
 import dev.gradleplugins.buildscript.syntax.KotlinRender;
 import dev.gradleplugins.buildscript.syntax.Syntax;
 
-import java.util.List;
-
 public enum GradleDsl implements Syntax {
     GROOVY {
-        @Override
-        public Statement literal(List<String> literalScript) {
-            return new GroovyDslLiteral(literalScript);
-        }
-
         @Override
         public String getFileExtension() {
             return "gradle";
@@ -30,11 +21,6 @@ public enum GradleDsl implements Syntax {
     },
     KOTLIN {
         @Override
-        public Statement literal(List<String> literalScript) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
         public String getFileExtension() {
             return "gradle.kts";
         }
@@ -44,8 +30,6 @@ public enum GradleDsl implements Syntax {
             return new KotlinRender().render(new KotlinCompatibility().transform(node)).toString();
         }
     };
-
-    public abstract Statement literal(List<String> literalScript);
 
     public abstract String getFileExtension();
 

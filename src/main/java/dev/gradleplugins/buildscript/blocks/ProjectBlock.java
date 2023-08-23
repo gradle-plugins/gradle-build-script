@@ -1,13 +1,12 @@
 package dev.gradleplugins.buildscript.blocks;
 
 import dev.gradleplugins.buildscript.ast.expressions.LiteralExpression;
-import dev.gradleplugins.buildscript.ast.statements.BlockStatement;
 import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
 import dev.gradleplugins.buildscript.ast.type.UnknownType;
 
 import java.util.function.Consumer;
 
-public final class ProjectBlock extends BlockStatement.Builder<ProjectBlock> {
+public final class ProjectBlock extends GradleBlockStatement.BlockBuilder<ProjectBlock> {
     public ProjectBlock() {
         super(ProjectBlock.class);
     }
@@ -27,8 +26,8 @@ public final class ProjectBlock extends BlockStatement.Builder<ProjectBlock> {
         return this;
     }
 
-    public ProjectBlock tasks(Consumer<? super BlockStatement.Builder<?>> configureAction) {
-        final BlockStatement.Builder<?> block = BlockStatement.newBuilder();
+    public ProjectBlock tasks(Consumer<? super GradleBlockStatement.BlockBuilder<?>> configureAction) {
+        final GradleBlockStatement.BlockBuilder<?> block = GradleBlockStatement.BlockBuilder.newInstance();
         configureAction.accept(block);
         add(new GradleBlockStatement(new LiteralExpression(UnknownType.unknownType(), "tasks"), block.build()));
         return this;

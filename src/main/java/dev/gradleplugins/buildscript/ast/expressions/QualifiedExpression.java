@@ -2,6 +2,7 @@ package dev.gradleplugins.buildscript.ast.expressions;
 
 import dev.gradleplugins.buildscript.ast.type.Type;
 
+// TODO: Maybe rename to navigation (vs safe-navigation)
 public final class QualifiedExpression implements Expression {
     private final Type type;
     private final Expression leftExpression;

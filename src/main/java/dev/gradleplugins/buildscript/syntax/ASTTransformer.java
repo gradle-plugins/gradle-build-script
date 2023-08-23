@@ -4,43 +4,45 @@ import dev.gradleplugins.buildscript.ast.Node;
 import dev.gradleplugins.buildscript.ast.body.ClassDeclaration;
 import dev.gradleplugins.buildscript.ast.comments.Comment;
 import dev.gradleplugins.buildscript.ast.comments.LineComment;
-import dev.gradleplugins.buildscript.ast.expressions.AsExpression;
-import dev.gradleplugins.buildscript.ast.expressions.AssignExpression;
 import dev.gradleplugins.buildscript.ast.expressions.AssignmentExpression;
 import dev.gradleplugins.buildscript.ast.expressions.BooleanLiteralExpression;
-import dev.gradleplugins.buildscript.ast.expressions.CastExpression;
+import dev.gradleplugins.buildscript.ast.expressions.CastingExpression;
 import dev.gradleplugins.buildscript.ast.expressions.ClassLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.CollectionLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression;
+import dev.gradleplugins.buildscript.ast.expressions.DelegateExpression;
 import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.expressions.FieldAccessExpression;
+import dev.gradleplugins.buildscript.ast.expressions.GroovyDslLiteral;
 import dev.gradleplugins.buildscript.ast.expressions.InfixExpression;
-import dev.gradleplugins.buildscript.ast.expressions.InstanceOfExpression;
 import dev.gradleplugins.buildscript.ast.expressions.ItExpression;
 import dev.gradleplugins.buildscript.ast.expressions.LambdaExpression;
 import dev.gradleplugins.buildscript.ast.expressions.LiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MapLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression;
-import dev.gradleplugins.buildscript.ast.expressions.NotExpression;
 import dev.gradleplugins.buildscript.ast.expressions.NullLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.PostfixExpression;
+import dev.gradleplugins.buildscript.ast.expressions.PrefixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.PropertyAccessExpression;
 import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
+import dev.gradleplugins.buildscript.ast.expressions.SafeNavigationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.StringInterpolationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.TernaryExpression;
+import dev.gradleplugins.buildscript.ast.expressions.TypeComparisonExpression;
 import dev.gradleplugins.buildscript.ast.expressions.TypeExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarationExpression;
 import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarator;
 import dev.gradleplugins.buildscript.ast.statements.AssertStatement;
-import dev.gradleplugins.buildscript.ast.statements.BlockStatement;
 import dev.gradleplugins.buildscript.ast.statements.CommentedStatement;
 import dev.gradleplugins.buildscript.ast.statements.ExpressionStatement;
 import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
-import dev.gradleplugins.buildscript.ast.statements.GroovyDslLiteral;
 import dev.gradleplugins.buildscript.ast.statements.GroupStatement;
+import dev.gradleplugins.buildscript.ast.statements.ImportDeclaration;
 import dev.gradleplugins.buildscript.ast.statements.MultiStatement;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
-import dev.gradleplugins.buildscript.ast.statements.StaticImportDeclaration;
-import dev.gradleplugins.buildscript.ast.statements.TypeImportDeclaration;
 import dev.gradleplugins.buildscript.blocks.PluginsDslBlock;
 
 import java.util.LinkedHashMap;
@@ -50,8 +52,13 @@ import java.util.stream.StreamSupport;
 
 public interface ASTTransformer extends Expression.Visitor<Expression>, Statement.Visitor<Statement> {
     @Override
+    default Expression visit(DelegateExpression expression) {
+        return expression;
+    }
+
+    @Override
     default Expression visit(LambdaExpression expression) {
-        return new LambdaExpression(expression.getParameters(), expression.getBody().accept(new Node.Visitor<Node>() {
+        return new LambdaExpression(expression.getLambdaType(), expression.getParameters(), expression.getBody().map(it -> it.accept(new Node.Visitor<Node>() {
             @Override
             public Node visit(Statement statement) {
                 return statement.accept(ASTTransformer.this);
@@ -66,12 +73,57 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
             public Node visit(Comment comment) {
                 throw new UnsupportedOperationException();
             }
-        }));
+        })).orElse(null));
+    }
+
+    @Override
+    default Statement visit(ImportDeclaration statement) {
+        return statement;
+    }
+
+    @Override
+    default Expression visit(TypeComparisonExpression expression) {
+        return new TypeComparisonExpression(expression.getComparisonType(), expression.getExpression().accept(this), expression.getInstanceType());
+    }
+
+    @Override
+    default Expression visit(CastingExpression expression) {
+        return new CastingExpression(expression.getCastingType(), expression.getType(), expression.getExpression().accept(this));
+    }
+
+    @Override
+    default Expression visit(PrefixExpression expression) {
+        return new PrefixExpression(expression.getOperator(), expression.getExpression().accept(this));
+    }
+
+    @Override
+    default Expression visit(PostfixExpression expression) {
+        return new PostfixExpression(expression.getExpression().accept(this), expression.getOperator());
     }
 
     @Override
     default Expression visit(ItExpression expression) {
         return expression;
+    }
+
+    @Override
+    default Expression visit(SafeNavigationExpression expression) {
+        return new SafeNavigationExpression(expression.getObjectExpression().accept(this), expression.getPropertyExpression().accept(this));
+    }
+
+    @Override
+    default Expression visit(TernaryExpression expression) {
+        return new TernaryExpression(expression.getCondition().accept(this), expression.getTrueExpression().accept(this), expression.getFalseExpression().accept(this));
+    }
+
+    @Override
+    default Expression visit(CollectionLiteralExpression expression) {
+        return new CollectionLiteralExpression(expression.getExpressions().stream().map(it -> it.accept(this)).collect(Collectors.toList()));
+    }
+
+    @Override
+    default Expression visit(StringInterpolationExpression expression) {
+        return new StringInterpolationExpression(StreamSupport.stream(expression.spliterator(), false).map(it -> it.accept(this)).collect(Collectors.toList()));
     }
 
     @Override
@@ -110,11 +162,6 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
     }
 
     @Override
-    default Expression visit(CastExpression expression) {
-        return new CastExpression(expression.getType(), expression.getExpression().accept(this));
-    }
-
-    @Override
     default Expression visit(SetLiteralExpression expression) {
         return new SetLiteralExpression(expression.getType(), StreamSupport.stream(expression.getElements().spliterator(), false).map(it -> it.accept(this)).collect(Collectors.toList()));
     }
@@ -149,18 +196,8 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
     }
 
     @Override
-    default Expression visit(InstanceOfExpression expression) {
-        return new InstanceOfExpression(expression.getExpression().accept(this), expression.getInstanceType());
-    }
-
-    @Override
     default Expression visit(EnclosedExpression expression) {
         return new EnclosedExpression(expression.getInner().accept(this));
-    }
-
-    @Override
-    default Expression visit(NotExpression expression) {
-        return new NotExpression(expression.getExpression().accept(this));
     }
 
     @Override
@@ -174,18 +211,8 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
     }
 
     @Override
-    default Expression visit(AssignExpression expression) {
-        return new AssignExpression(expression.getTarget().accept(this), expression.getValue().accept(this));
-    }
-
-    @Override
     default Expression visit(TypeExpression expression) {
         return expression;
-    }
-
-    @Override
-    default Expression visit(AsExpression expression) {
-        return new AsExpression(expression.getType(), expression.getExpression().accept(this));
     }
 
 
@@ -205,8 +232,8 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
     }
 
     @Override
-    default Statement visit(GroovyDslLiteral statement) {
-        return statement;
+    default Expression visit(GroovyDslLiteral expression) {
+        return expression;
     }
 
     @Override
@@ -225,23 +252,8 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
     }
 
     @Override
-    default Statement visit(TypeImportDeclaration statement) {
-        return statement;
-    }
-
-    @Override
-    default Statement visit(StaticImportDeclaration statement) {
-        return statement;
-    }
-
-    @Override
-    default Statement visit(BlockStatement statement) {
-        return new BlockStatement(StreamSupport.stream(statement.spliterator(), false).map(it -> it.accept(this)).collect(Collectors.toList()));
-    }
-
-    @Override
     default Statement visit(GradleBlockStatement statement) {
-        return new GradleBlockStatement(statement.getSelector().accept(this), new BlockStatement(StreamSupport.stream(statement.getBlock().spliterator(), false).map(it -> it.accept(this)).collect(Collectors.toList())));
+        return new GradleBlockStatement(statement.getSelector().accept(this), (LambdaExpression) statement.getBody().accept(this));
     }
 
     @Override

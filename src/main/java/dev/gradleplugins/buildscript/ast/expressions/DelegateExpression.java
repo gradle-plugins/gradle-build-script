@@ -2,22 +2,22 @@ package dev.gradleplugins.buildscript.ast.expressions;
 
 import dev.gradleplugins.buildscript.ast.type.Type;
 
-public final class AsExpression implements CastingExpression {
-    private final Type type;
-    private final Expression expression;
+import static dev.gradleplugins.buildscript.ast.type.UnknownType.unknownType;
 
-    public AsExpression(Type type, Expression expression) {
+public final class DelegateExpression implements Expression {
+    private final Type type;
+
+    public DelegateExpression() {
+        this(unknownType());
+    }
+
+    public DelegateExpression(Type type) {
         this.type = type;
-        this.expression = expression;
     }
 
     @Override
     public Type getType() {
         return type;
-    }
-
-    public Expression getExpression() {
-        return expression;
     }
 
     @Override
