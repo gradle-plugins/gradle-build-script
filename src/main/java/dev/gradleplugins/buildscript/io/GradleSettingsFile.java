@@ -114,7 +114,7 @@ public final class GradleSettingsFile implements SettingsBuildScript {
                 stmt.add(new GradleBlockStatement(literal("plugins"), pluginsDslBlock.build()));
             }
             stmt.addAll(statements);
-            Files.write(location.resolve(dsl.fileName("settings")), MultiStatement.of(stmt).toString(dsl).getBytes(StandardCharsets.UTF_8));
+            Files.write(Files.createDirectories(location).resolve(dsl.fileName("settings")), MultiStatement.of(stmt).toString(dsl).getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
