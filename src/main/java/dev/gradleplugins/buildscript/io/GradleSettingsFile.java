@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
+import static java.util.Objects.requireNonNull;
 
 public final class GradleSettingsFile implements SettingsBuildScript {
     private final Path location;
@@ -36,7 +37,7 @@ public final class GradleSettingsFile implements SettingsBuildScript {
     }
 
     public static GradleSettingsFile inDirectory(Path location) {
-        return new GradleSettingsFile(location).writeScriptToFileSystem();
+        return new GradleSettingsFile(requireNonNull(location, "'location' must not be null")).writeScriptToFileSystem();
     }
 
     @Override

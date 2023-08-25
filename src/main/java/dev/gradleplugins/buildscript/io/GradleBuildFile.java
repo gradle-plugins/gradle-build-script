@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
+import static java.util.Objects.requireNonNull;
 
 public final class GradleBuildFile implements ProjectBuildScript {
     private final Path location;
@@ -34,7 +35,7 @@ public final class GradleBuildFile implements ProjectBuildScript {
     }
 
     public static GradleBuildFile inDirectory(Path location) {
-        return new GradleBuildFile(location).writeScriptToFileSystem();
+        return new GradleBuildFile(requireNonNull(location, "'location' must not be null")).writeScriptToFileSystem();
     }
 
     @Override
