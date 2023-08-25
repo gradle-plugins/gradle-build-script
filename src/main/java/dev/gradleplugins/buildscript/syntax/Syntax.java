@@ -9,6 +9,7 @@ import dev.gradleplugins.buildscript.ast.expressions.LambdaExpression;
 import dev.gradleplugins.buildscript.ast.expressions.LiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.MapLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.NullLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.PrefixExpression;
 import dev.gradleplugins.buildscript.ast.expressions.PropertyAccessExpression;
 import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
@@ -90,6 +91,10 @@ public interface Syntax {
     static <T extends Statement> Statement comment(String comment, T block) {
         throw new UnsupportedOperationException();
 //        return new GroupStatement(Arrays.asList(new LineComment(comment), block));
+    }
+
+    static PrefixExpression not(Expression expression) {
+        return new PrefixExpression(PrefixExpression.Not, expression);
     }
 
     static ExpressionBuilder<LambdaExpression> lambda(Consumer<? super LambdaExpression.Builder> configureAction) {
