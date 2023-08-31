@@ -3,6 +3,8 @@ package dev.gradleplugins.buildscript.blocks;
 import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
 
+import javax.annotation.Nullable;
+
 public final class PluginsDslBlock extends GradleBlockStatement.BlockBuilder<PluginsDslBlock> {
     public PluginsDslBlock() {
         super(PluginsDslBlock.class);
@@ -13,6 +15,11 @@ public final class PluginsDslBlock extends GradleBlockStatement.BlockBuilder<Plu
         return this;
     }
 
+    public PluginsDslBlock id(String pluginId, String version) {
+        add(new IdStatement(pluginId, version));
+        return this;
+    }
+
     @Override
     protected PluginsDslBlock newBuilder() {
         return new PluginsDslBlock();
@@ -20,17 +27,24 @@ public final class PluginsDslBlock extends GradleBlockStatement.BlockBuilder<Plu
 
     public static final class IdStatement implements Statement {
         private final String pluginId;
+        @Nullable private final String version;
 
-        public IdStatement(String pluginId) {
+        public IdStatement(String pluginId, @Nullable String version) {
             this.pluginId = pluginId;
+            this.version = version;
         }
 
         public static IdStatement id(String pluginId) {
-            return new IdStatement(pluginId);
+            return new IdStatement(pluginId, null);
         }
 
         public String getPluginId() {
             return pluginId;
+        }
+
+        @Nullable
+        public String getVersion() {
+            return version;
         }
 
         @Override

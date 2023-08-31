@@ -247,9 +247,14 @@ public final class KotlinRender implements RenderableSyntax.Renderer {
             return Content.of(render(expression.getLeftExpression()) + " " + expression.getOperator() + " " + render(expression.getRightExpression()));
         }
 
-        @Override
         public Content visit(PluginsDslBlock.IdStatement statement) {
-            return new MethodCallExpression(current(), "id", Collections.singletonList(string(statement.getPluginId()))).accept(this);
+            final StringBuilder builder = new StringBuilder();
+            builder.append(render(new MethodCallExpression(current(), "id", Collections.singletonList(string(statement.getPluginId())))));
+
+            if (statement.getVersion() != null) {
+                builder.append(" ").append(render(new MethodCallExpression(current(), "version", Collections.singletonList(string(statement.getVersion())))));
+            }
+            return Content.of(builder.toString());
         }
 
         @Override

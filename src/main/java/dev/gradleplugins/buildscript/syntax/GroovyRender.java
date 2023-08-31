@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression.current;
 import static dev.gradleplugins.buildscript.ast.type.ReferenceType.stringType;
 import static dev.gradleplugins.buildscript.ast.type.UnknownType.unknownType;
 import static dev.gradleplugins.buildscript.syntax.Syntax.string;
@@ -254,7 +255,13 @@ public final class GroovyRender implements RenderableSyntax.Renderer {
         }
 
         public Content visit(PluginsDslBlock.IdStatement statement) {
-            return Content.of("id " + render(string(statement.getPluginId())));
+            final StringBuilder builder = new StringBuilder();
+            builder.append(render(new MethodCallExpression(current(), "id", Collections.singletonList(string(statement.getPluginId())))));
+
+            if (statement.getVersion() != null) {
+                builder.append(" ").append(render(new MethodCallExpression(current(), "version", Collections.singletonList(string(statement.getVersion())))));
+            }
+            return Content.of(builder.toString());
         }
 
         public Content visit(GradleBlockStatement statement) {
