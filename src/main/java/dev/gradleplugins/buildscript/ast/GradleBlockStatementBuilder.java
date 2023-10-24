@@ -3,6 +3,7 @@ package dev.gradleplugins.buildscript.ast;
 import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
 import dev.gradleplugins.buildscript.ast.type.Type;
+import dev.gradleplugins.buildscript.syntax.normalizer.UseGetterTransformer;
 
 public class GradleBlockStatementBuilder implements Statement {
     private final GradleBlockStatement delegate;
@@ -13,8 +14,7 @@ public class GradleBlockStatementBuilder implements Statement {
 
     // Convert delegate expression into it expression then it expression into getter transformed selector and body unpacked
     public Statement useGetter() {
-//        return new UseGetterTransformer().visit(delegate);
-        throw new UnsupportedOperationException();
+        return new UseGetterTransformer().visit(delegate);
     }
 
     // Convert delegate expression into it expression

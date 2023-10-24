@@ -1,5 +1,6 @@
 package dev.gradleplugins.buildscript.blocks;
 
+import dev.gradleplugins.buildscript.ast.GradleBlockStatementBuilder;
 import dev.gradleplugins.buildscript.ast.expressions.LiteralExpression;
 import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
 import dev.gradleplugins.buildscript.ast.type.UnknownType;
@@ -29,7 +30,7 @@ public final class ProjectBlock extends GradleBlockStatement.BlockBuilder<Projec
     public ProjectBlock tasks(Consumer<? super GradleBlockStatement.BlockBuilder<?>> configureAction) {
         final GradleBlockStatement.BlockBuilder<?> block = GradleBlockStatement.BlockBuilder.newInstance();
         configureAction.accept(block);
-        add(new GradleBlockStatement(new LiteralExpression(UnknownType.unknownType(), "tasks"), block.build()));
+        add(new GradleBlockStatementBuilder(new GradleBlockStatement(new LiteralExpression(UnknownType.unknownType(), "tasks"), block.build())).useGetter());
         return this;
     }
 
