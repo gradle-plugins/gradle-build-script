@@ -48,7 +48,10 @@ public final class GradleBuildFile extends AbstractBuildScriptFile implements Pr
 
     @Override
     public ProjectBuildScript configure(Consumer<? super ProjectBlock> configureAction) {
-        throw new UnsupportedOperationException();
+        final ProjectBlock block = new ProjectBlock();
+        configureAction.accept(block);
+        statements.add((Statement) block.build().getBody().get());
+        return writeScriptToFileSystem();
     }
 
     @Override
