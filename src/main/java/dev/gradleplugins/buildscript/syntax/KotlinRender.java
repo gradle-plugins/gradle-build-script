@@ -52,6 +52,8 @@ import java.util.stream.StreamSupport;
 import static dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression.current;
 import static dev.gradleplugins.buildscript.ast.type.ReferenceType.stringType;
 import static dev.gradleplugins.buildscript.ast.type.UnknownType.unknownType;
+import static dev.gradleplugins.buildscript.syntax.Syntax.bool;
+import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
 import static dev.gradleplugins.buildscript.syntax.Syntax.string;
 
 public final class KotlinRender implements RenderableSyntax.Renderer {
@@ -249,10 +251,18 @@ public final class KotlinRender implements RenderableSyntax.Renderer {
 
         public Content visit(PluginsDslBlock.IdStatement statement) {
             final StringBuilder builder = new StringBuilder();
-            builder.append(render(new MethodCallExpression(current(), "id", Collections.singletonList(string(statement.getPluginId())))));
+            if (statement.shouldUseKotlinAccessor()) {
+                builder.append("`").append(statement.getPluginId()).append("`");
+            } else {
+                builder.append(render(new MethodCallExpression(current(), "id", Collections.singletonList(string(statement.getPluginId())))));
+            }
 
             if (statement.getVersion() != null) {
                 builder.append(" ").append(render(new MethodCallExpression(current(), "version", Collections.singletonList(string(statement.getVersion())))));
+            }
+
+            if (!statement.shouldApply()) {
+                builder.append(" ").append(render(new MethodCallExpression(current(), "apply", Collections.singletonList(bool(false)))));
             }
             return Content.of(builder.toString());
         }

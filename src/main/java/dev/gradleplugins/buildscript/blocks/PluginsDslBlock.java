@@ -4,6 +4,8 @@ import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 public final class PluginsDslBlock extends GradleBlockStatement.BlockBuilder<PluginsDslBlock> {
     public PluginsDslBlock() {
@@ -16,7 +18,14 @@ public final class PluginsDslBlock extends GradleBlockStatement.BlockBuilder<Plu
     }
 
     public PluginsDslBlock id(String pluginId, String version) {
-        add(new IdStatement(pluginId, version));
+        add(new IdStatement(pluginId, version, IdStatement.UseKotlinAccessor.NO, IdStatement.ShouldApply.TRUE));
+        return this;
+    }
+
+    public PluginsDslBlock id(String pluginId, Consumer<? super IdStatement.Builder> action) {
+        final IdStatement.Builder builder = new IdStatement.Builder(pluginId);
+        action.accept(builder);
+        add(builder.build());
         return this;
     }
 
@@ -28,14 +37,18 @@ public final class PluginsDslBlock extends GradleBlockStatement.BlockBuilder<Plu
     public static final class IdStatement implements Statement {
         private final String pluginId;
         @Nullable private final String version;
+        private final UseKotlinAccessor useKotlinAccessor;
+        private final ShouldApply shouldApply;
 
-        public IdStatement(String pluginId, @Nullable String version) {
+        public IdStatement(String pluginId, @Nullable String version, UseKotlinAccessor useKotlinAccessor, ShouldApply shouldApply) {
             this.pluginId = pluginId;
             this.version = version;
+            this.useKotlinAccessor = useKotlinAccessor;
+            this.shouldApply = shouldApply;
         }
 
         public static IdStatement id(String pluginId) {
-            return new IdStatement(pluginId, null);
+            return new IdStatement(pluginId, null, UseKotlinAccessor.NO, ShouldApply.TRUE);
         }
 
         public String getPluginId() {
@@ -47,62 +60,50 @@ public final class PluginsDslBlock extends GradleBlockStatement.BlockBuilder<Plu
             return version;
         }
 
+        public boolean shouldUseKotlinAccessor() {
+            return useKotlinAccessor == UseKotlinAccessor.YES;
+        }
+
+        public boolean shouldApply() {
+            return shouldApply == ShouldApply.TRUE;
+        }
+
         @Override
         public <ReturnType> ReturnType accept(Visitor<ReturnType> visitor) {
             return visitor.visit(this);
         }
 
-        //        public static final class Builder {
-//            private String pluginId;
-//            private String version = null;
-//            private Boolean shouldApply = null;
-//            private boolean useKotlinAccessor = false;
-//
-//            private Builder id(String pluginId) {
-//                this.pluginId = Objects.requireNonNull(pluginId);
-//                return this;
-//            }
-//
-//            public Builder version(String version) {
-//                this.version = Objects.requireNonNull(version);
-//                return this;
-//            }
-//
-//            public Builder apply(boolean shouldApply) {
-//                this.shouldApply = shouldApply;
-//                return this;
-//            }
-//
-//            public Builder useKotlinAccessor() {
-//                this.useKotlinAccessor = true;
-//                return this;
-//            }
-//
-//            public IdStatement build() {
-//                final List<Expression> builder = new ArrayList<>();
-//                if (useKotlinAccessor) {
-//                    final String groovyLiteral = "id '" + pluginId + "'";
-//                    final String kotlinLiteral = Arrays.stream(pluginId.split("\\.")).map(it -> {
-//                        if (it.contains("-")) {
-//                            return "`" + it + "`";
-//                        } else {
-//                            return it;
-//                        }
-//                    }).collect(Collectors.joining("."));
-//                    builder.add(gradle(groovyLiteral, kotlinLiteral));
-//                } else {
-//                    builder.add(invoke("id", string(pluginId)));
-//                }
-//                if (version != null) {
-//                    builder.add(Syntax.literal(" "));
-//                    builder.add(invoke("version", string(version)));
-//                }
-//                if (shouldApply != null && !shouldApply) {
-//                    builder.add(Syntax.literal(" "));
-//                    builder.add(invoke("apply", Syntax.literal("false")));
-//                }
-//                return new IdStatement(ExpressionStatement.of(concat(builder)));
-//            }
-//        }
+        private enum UseKotlinAccessor { YES, NO }
+        private enum ShouldApply { TRUE, FALSE }
+
+        public static final class Builder {
+            private final String pluginId;
+            private String version = null;
+            private ShouldApply shouldApply = ShouldApply.TRUE;
+            private UseKotlinAccessor useKotlinAccessor = UseKotlinAccessor.NO;
+
+            private Builder(String pluginId) {
+                this.pluginId = Objects.requireNonNull(pluginId);
+            }
+
+            public Builder version(String version) {
+                this.version = Objects.requireNonNull(version);
+                return this;
+            }
+
+            public Builder apply(boolean shouldApply) {
+                this.shouldApply = shouldApply ? ShouldApply.TRUE : ShouldApply.FALSE;
+                return this;
+            }
+
+            public Builder useKotlinAccessor() {
+                this.useKotlinAccessor = UseKotlinAccessor.YES;
+                return this;
+            }
+
+            public IdStatement build() {
+                return new IdStatement(pluginId, version, useKotlinAccessor, shouldApply);
+            }
+        }
     }
 }
