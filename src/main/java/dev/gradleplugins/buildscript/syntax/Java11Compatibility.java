@@ -9,7 +9,7 @@ import dev.gradleplugins.buildscript.syntax.normalizer.JavaSafeNavigationTransfo
 
 import java.util.Arrays;
 
-public class Java11Compatibility extends ASTNormalizer {
+public final class Java11Compatibility extends ASTNormalizer {
     public Java11Compatibility() {
         super(Arrays.asList(
                 new JavaPropertyAccessTransformer(),

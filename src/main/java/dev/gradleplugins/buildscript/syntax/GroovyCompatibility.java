@@ -7,7 +7,7 @@ import dev.gradleplugins.buildscript.syntax.normalizer.MethodCallToGradleBlockTr
 
 import java.util.Arrays;
 
-public class GroovyCompatibility extends ASTNormalizer {
+public final class GroovyCompatibility extends ASTNormalizer {
     public GroovyCompatibility() {
         super(Arrays.asList(
                 new MethodCallToGradleBlockTransformer(),

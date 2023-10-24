@@ -8,7 +8,7 @@ import dev.gradleplugins.buildscript.syntax.normalizer.MethodCallToGradleBlockTr
 
 import java.util.Arrays;
 
-public class KotlinCompatibility extends ASTNormalizer {
+public final class KotlinCompatibility extends ASTNormalizer {
     public KotlinCompatibility() {
         super(Arrays.asList(
                 new GroovyDslTransformer(),
