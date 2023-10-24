@@ -135,6 +135,11 @@ public final class GradleBlockStatement implements Statement {
 
         public Builder withBody(Node node) {
             this.bodyExpression = node;
+
+            if (node instanceof LambdaExpression && !((LambdaExpression) node).getBody().isPresent()) {
+                this.bodyExpression = null;
+            }
+
             return this;
         }
 
