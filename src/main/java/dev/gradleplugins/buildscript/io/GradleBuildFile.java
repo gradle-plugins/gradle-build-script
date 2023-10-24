@@ -23,15 +23,14 @@ import java.util.function.Consumer;
 import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
 import static java.util.Objects.requireNonNull;
 
-public final class GradleBuildFile implements ProjectBuildScript {
-    private final Path location;
+public final class GradleBuildFile extends AbstractBuildScriptFile implements ProjectBuildScript, GradleBuildScriptFile {
+    private BuildScriptLocation location;
     private PluginsDslBlock pluginsDslBlock;
-    private GradleDsl dsl = GradleDsl.GROOVY;
     private BuildscriptBlock buildScriptBlock;
     private final List<Statement> statements = new ArrayList<>();
 
     private GradleBuildFile(Path location) {
-        this.location = location;
+        this.location = new BuildScriptLocation(location.resolve("build.gradle"), GradleDsl.GROOVY);
     }
 
     public static GradleBuildFile inDirectory(Path location) {
@@ -39,7 +38,7 @@ public final class GradleBuildFile implements ProjectBuildScript {
     }
 
     @Override
-    public ProjectBuildScript plugins(Consumer<? super PluginsDslBlock> configureAction) {
+    public GradleBuildFile plugins(Consumer<? super PluginsDslBlock> configureAction) {
         if (pluginsDslBlock == null) {
             pluginsDslBlock = new PluginsDslBlock();
         }
@@ -71,39 +70,44 @@ public final class GradleBuildFile implements ProjectBuildScript {
         return writeScriptToFileSystem();
     }
 
-    public GradleBuildFile leftShift(Statement statement) {
-        return append(statement);
-    }
-
-    public GradleBuildFile leftShift(Expression expression) {
-        return append(expression);
-    }
-
     public GradleBuildFile useKotlinDsl() {
         try {
-            Files.deleteIfExists(location.resolve(dsl.fileName("build")));
+            Files.deleteIfExists(location.getPath());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
 
-        dsl = GradleDsl.KOTLIN;
+        location = location.use(GradleDsl.KOTLIN);
+        return writeScriptToFileSystem();
+    }
+
+    public GradleBuildFile useGroovyDsl() {
+        try {
+            Files.deleteIfExists(location.getPath());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
+        location = location.use(GradleDsl.GROOVY);
         return writeScriptToFileSystem();
     }
 
     private GradleBuildFile writeScriptToFileSystem() {
-        try {
-            List<Statement> stmt = new ArrayList<>();
-            if (buildScriptBlock != null) {
-                stmt.add(new GradleBlockStatement(literal("buildscript"), buildScriptBlock.build()));
-            }
-            if (pluginsDslBlock != null) {
-                stmt.add(new GradleBlockStatement(literal("plugins"), pluginsDslBlock.build()));
-            }
-            stmt.addAll(statements);
-            Files.write(Files.createDirectories(location).resolve(dsl.fileName("build")), MultiStatement.of(stmt).toString(dsl).getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        List<Statement> stmt = new ArrayList<>();
+        if (buildScriptBlock != null) {
+            stmt.add(new GradleBlockStatement(literal("buildscript"), buildScriptBlock.build()));
         }
+        if (pluginsDslBlock != null) {
+            stmt.add(new GradleBlockStatement(literal("plugins"), pluginsDslBlock.build()));
+        }
+        stmt.addAll(statements);
+        location.withPath((filePath, dsl) -> {
+            try {
+                Files.write(filePath, MultiStatement.of(stmt).toString(dsl).getBytes(StandardCharsets.UTF_8));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
 
         return this;
     }

@@ -20,32 +20,18 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
-import static java.util.Objects.requireNonNull;
 
-public final class GradleInitFile implements InitBuildScript {
-    private final Path filePath;
-    private GradleDsl dsl;
+public final class GradleInitFile extends AbstractBuildScriptFile implements InitBuildScript, GradleBuildScriptFile {
+    private BuildScriptLocation location;
     private BuildscriptBlock buildScriptBlock;
     private final List<Statement> statements = new ArrayList<>();
 
-    private GradleInitFile(Path filePath, GradleDsl dsl) {
-        this.filePath = filePath;
-        this.dsl = dsl;
+    private GradleInitFile(BuildScriptLocation location) {
+        this.location = location;
     }
 
     public static GradleInitFile of(Path filePath) {
-        requireNonNull(filePath, "'filePath' must not be null");
-
-        GradleDsl dsl = GradleDsl.GROOVY;
-        if (filePath.getFileName().toString().endsWith(".gradle.kts")) {
-            dsl = GradleDsl.KOTLIN;
-        }
-
-        String fileName = filePath.getFileName().toString();
-        int idx = fileName.lastIndexOf(".gradle");
-        fileName = fileName.substring(0, idx);
-
-        return new GradleInitFile(filePath.getParent().resolve(fileName), dsl).writeScriptToFileSystem();
+        return new GradleInitFile(BuildScriptLocation.of(filePath)).writeScriptToFileSystem();
     }
 
     @Override
@@ -64,12 +50,12 @@ public final class GradleInitFile implements InitBuildScript {
 
     public GradleInitFile useKotlinDsl() {
         try {
-            Files.deleteIfExists(filePath.getParent().resolve(dsl.fileName(filePath.getFileName().toString())));
+            Files.deleteIfExists(location.getPath());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
 
-        dsl = GradleDsl.KOTLIN;
+        location = location.use(GradleDsl.KOTLIN);
         return writeScriptToFileSystem();
     }
 
@@ -83,31 +69,25 @@ public final class GradleInitFile implements InitBuildScript {
         return writeScriptToFileSystem();
     }
 
-    public GradleInitFile leftShift(Statement statement) {
-        return append(statement);
-    }
-
-    public GradleInitFile leftShift(Expression expression) {
-        return append(expression);
-    }
-
     private GradleInitFile writeScriptToFileSystem() {
-        try {
-            List<Statement> stmt = new ArrayList<>();
-            if (buildScriptBlock != null) {
-                stmt.add(new GradleBlockStatement(literal("initscript"), buildScriptBlock.build()));
-            }
-            stmt.addAll(statements);
-            Files.write(Files.createDirectories(filePath.getParent()).resolve(dsl.fileName(filePath.getFileName().toString())), MultiStatement.of(stmt).toString(dsl).getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        List<Statement> stmt = new ArrayList<>();
+        if (buildScriptBlock != null) {
+            stmt.add(new GradleBlockStatement(literal("initscript"), buildScriptBlock.build()));
         }
+        stmt.addAll(statements);
+        location.withPath((filePath, dsl) -> {
+            try {
+                Files.write(filePath, MultiStatement.of(stmt).toString(dsl).getBytes(StandardCharsets.UTF_8));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
 
         return this;
     }
 
     // TODO: Should implement File type interface
     public Path getLocation() {
-        return filePath.getParent().resolve(dsl.fileName(filePath.getFileName().toString()));
+        return location.getPath();
     }
 }
