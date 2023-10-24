@@ -30,7 +30,7 @@ public final class GradleBuildFile extends AbstractBuildScriptFile implements Pr
     private final List<Statement> statements = new ArrayList<>();
 
     private GradleBuildFile(Path location) {
-        this.location = new BuildScriptLocation(location.resolve("build.gradle"), GradleDsl.GROOVY);
+        this.location = new BuildScriptLocation(location.resolve("build"), GradleDsl.GROOVY);
     }
 
     public static GradleBuildFile inDirectory(Path location) {
