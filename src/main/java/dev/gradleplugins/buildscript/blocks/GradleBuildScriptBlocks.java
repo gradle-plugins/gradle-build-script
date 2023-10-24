@@ -58,10 +58,10 @@ public final class GradleBuildScriptBlocks {
         return new GradleBlockStatement(new LiteralExpression(unknownType(), "repositories"), block.build());
     }
 
-    public static GradleBlockStatement buildscript(Consumer<? super BuildscriptBlock> configureAction) {
+    public static GradleBlockStatementBuilder buildscript(Consumer<? super BuildscriptBlock> configureAction) {
         final BuildscriptBlock block = new BuildscriptBlock();
         configureAction.accept(block);
-        return new GradleBlockStatement(new LiteralExpression(unknownType(), "buildscript"), block.build());
+        return new GradleBlockStatementBuilder(new GradleBlockStatement(new LiteralExpression(unknownType(), "buildscript"), block.build()));
     }
 
     public static GradleBlockStatement initscript(Consumer<? super BuildscriptBlock> configureAction) {
