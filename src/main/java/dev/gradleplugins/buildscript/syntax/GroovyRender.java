@@ -5,6 +5,7 @@ import dev.gradleplugins.buildscript.ast.comments.Comment;
 import dev.gradleplugins.buildscript.ast.expressions.AssignmentExpression;
 import dev.gradleplugins.buildscript.ast.expressions.BooleanLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CastingExpression;
+import dev.gradleplugins.buildscript.ast.expressions.ClassLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression;
 import dev.gradleplugins.buildscript.ast.expressions.DelegateExpression;
 import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
@@ -339,5 +340,10 @@ public final class GroovyRender implements RenderableSyntax.Renderer {
         public Content visit(PostfixExpression expression) {
             return Content.of(render(expression.getExpression()) + expression.getOperator());
         }
-    }
+
+		@Override
+		public Content visit(ClassLiteralExpression expression) {
+			return Content.of(expression.get().toString());
+		}
+	}
 }

@@ -3,6 +3,7 @@ package dev.gradleplugins.buildscript.syntax;
 import dev.gradleplugins.buildscript.ast.ExpressionBuilder;
 import dev.gradleplugins.buildscript.ast.Node;
 import dev.gradleplugins.buildscript.ast.expressions.BooleanLiteralExpression;
+import dev.gradleplugins.buildscript.ast.expressions.ClassLiteralExpression;
 import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.expressions.GroovyDslLiteral;
 import dev.gradleplugins.buildscript.ast.expressions.LambdaExpression;
@@ -17,6 +18,7 @@ import dev.gradleplugins.buildscript.ast.statements.AssertStatement;
 import dev.gradleplugins.buildscript.ast.statements.CommentedStatement;
 import dev.gradleplugins.buildscript.ast.statements.ImportDeclaration;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
+import dev.gradleplugins.buildscript.ast.type.ReferenceType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,6 +54,14 @@ public interface Syntax {
     static ExpressionBuilder<MapLiteralExpression> mapOf(String key, Expression value) {
         return new ExpressionBuilder<>(new MapLiteralExpression(value.getType(), Collections.singletonMap(key, value)));
     }
+
+	static ExpressionBuilder<ClassLiteralExpression> classOf(String classNameOrCanonicalName) {
+		return new ExpressionBuilder<>(new ClassLiteralExpression(new ReferenceType(classNameOrCanonicalName)));
+	}
+
+	static ExpressionBuilder<ClassLiteralExpression> classOf(ReferenceType type) {
+		return new ExpressionBuilder<>(new ClassLiteralExpression(type));
+	}
 
     static NullLiteralExpression nul() {
         return new NullLiteralExpression();
