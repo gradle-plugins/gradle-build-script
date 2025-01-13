@@ -82,6 +82,10 @@ public interface Syntax {
         return new ImportDeclaration(ImportDeclaration.ImportType.TYPE, type.getCanonicalName());
     }
 
+	static ImportDeclaration staticImportClass(Class<?> type) {
+		return new ImportDeclaration(ImportDeclaration.ImportType.STATIC, type.getCanonicalName() + ".*");
+	}
+
     static ExpressionBuilder<PropertyAccessExpression> extensionOf(String extensionName) {
         return new ExpressionBuilder<>(new PropertyAccessExpression(unknownType(), PropertyAccessExpression.AccessType.EXTENSION, current(), extensionName));
     }
