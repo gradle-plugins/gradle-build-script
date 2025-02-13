@@ -43,6 +43,7 @@ public interface Expression extends Node {
         ReturnType visit(PostfixExpression expression);
 
         ReturnType visit(GroovyDslLiteral expression);
+        ReturnType visit(KotlinDslLiteral expression);
 
         ReturnType visit(TypeExpression expression);
 

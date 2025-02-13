@@ -2,30 +2,7 @@ package dev.gradleplugins.buildscript.syntax;
 
 import dev.gradleplugins.buildscript.ast.Node;
 import dev.gradleplugins.buildscript.ast.comments.Comment;
-import dev.gradleplugins.buildscript.ast.expressions.AssignmentExpression;
-import dev.gradleplugins.buildscript.ast.expressions.BooleanLiteralExpression;
-import dev.gradleplugins.buildscript.ast.expressions.CastingExpression;
-import dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression;
-import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
-import dev.gradleplugins.buildscript.ast.expressions.Expression;
-import dev.gradleplugins.buildscript.ast.expressions.FieldAccessExpression;
-import dev.gradleplugins.buildscript.ast.expressions.GroovyDslLiteral;
-import dev.gradleplugins.buildscript.ast.expressions.InfixExpression;
-import dev.gradleplugins.buildscript.ast.expressions.ItExpression;
-import dev.gradleplugins.buildscript.ast.expressions.LambdaExpression;
-import dev.gradleplugins.buildscript.ast.expressions.LiteralExpression;
-import dev.gradleplugins.buildscript.ast.expressions.MapLiteralExpression;
-import dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression;
-import dev.gradleplugins.buildscript.ast.expressions.NullLiteralExpression;
-import dev.gradleplugins.buildscript.ast.expressions.PostfixExpression;
-import dev.gradleplugins.buildscript.ast.expressions.PrefixExpression;
-import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
-import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
-import dev.gradleplugins.buildscript.ast.expressions.TernaryExpression;
-import dev.gradleplugins.buildscript.ast.expressions.TypeComparisonExpression;
-import dev.gradleplugins.buildscript.ast.expressions.TypeExpression;
-import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarationExpression;
-import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarator;
+import dev.gradleplugins.buildscript.ast.expressions.*;
 import dev.gradleplugins.buildscript.ast.statements.AssertStatement;
 import dev.gradleplugins.buildscript.ast.statements.CommentedStatement;
 import dev.gradleplugins.buildscript.ast.statements.ExpressionStatement;
@@ -126,6 +103,11 @@ public final class JavaRender implements RenderableSyntax.Renderer {
         public Content visit(GroovyDslLiteral statement) {
             throw new UnsupportedOperationException("cannot render Groovy DSL");
         }
+
+		@Override
+		public Content visit(KotlinDslLiteral statement) {
+			throw new UnsupportedOperationException("cannot render Kotlin DSL");
+		}
 
         public Content visit(ImportDeclaration statement) {
             switch (statement.getImportType()) {

@@ -4,37 +4,7 @@ import dev.gradleplugins.buildscript.ast.Node;
 import dev.gradleplugins.buildscript.ast.body.ClassDeclaration;
 import dev.gradleplugins.buildscript.ast.comments.Comment;
 import dev.gradleplugins.buildscript.ast.comments.LineComment;
-import dev.gradleplugins.buildscript.ast.expressions.AssignmentExpression;
-import dev.gradleplugins.buildscript.ast.expressions.BooleanLiteralExpression;
-import dev.gradleplugins.buildscript.ast.expressions.CastingExpression;
-import dev.gradleplugins.buildscript.ast.expressions.ClassLiteralExpression;
-import dev.gradleplugins.buildscript.ast.expressions.CollectionLiteralExpression;
-import dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpression;
-import dev.gradleplugins.buildscript.ast.expressions.DelegateExpression;
-import dev.gradleplugins.buildscript.ast.expressions.EnclosedExpression;
-import dev.gradleplugins.buildscript.ast.expressions.Expression;
-import dev.gradleplugins.buildscript.ast.expressions.FieldAccessExpression;
-import dev.gradleplugins.buildscript.ast.expressions.GroovyDslLiteral;
-import dev.gradleplugins.buildscript.ast.expressions.InfixExpression;
-import dev.gradleplugins.buildscript.ast.expressions.ItExpression;
-import dev.gradleplugins.buildscript.ast.expressions.LambdaExpression;
-import dev.gradleplugins.buildscript.ast.expressions.LiteralExpression;
-import dev.gradleplugins.buildscript.ast.expressions.MapLiteralExpression;
-import dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression;
-import dev.gradleplugins.buildscript.ast.expressions.NullLiteralExpression;
-import dev.gradleplugins.buildscript.ast.expressions.PostfixExpression;
-import dev.gradleplugins.buildscript.ast.expressions.PrefixExpression;
-import dev.gradleplugins.buildscript.ast.expressions.PropertyAccessExpression;
-import dev.gradleplugins.buildscript.ast.expressions.QualifiedExpression;
-import dev.gradleplugins.buildscript.ast.expressions.SafeNavigationExpression;
-import dev.gradleplugins.buildscript.ast.expressions.SetLiteralExpression;
-import dev.gradleplugins.buildscript.ast.expressions.StringInterpolationExpression;
-import dev.gradleplugins.buildscript.ast.expressions.StringLiteralExpression;
-import dev.gradleplugins.buildscript.ast.expressions.TernaryExpression;
-import dev.gradleplugins.buildscript.ast.expressions.TypeComparisonExpression;
-import dev.gradleplugins.buildscript.ast.expressions.TypeExpression;
-import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarationExpression;
-import dev.gradleplugins.buildscript.ast.expressions.VariableDeclarator;
+import dev.gradleplugins.buildscript.ast.expressions.*;
 import dev.gradleplugins.buildscript.ast.statements.AssertStatement;
 import dev.gradleplugins.buildscript.ast.statements.CommentedStatement;
 import dev.gradleplugins.buildscript.ast.statements.ExpressionStatement;
@@ -236,7 +206,12 @@ public interface ASTTransformer extends Expression.Visitor<Expression>, Statemen
         return expression;
     }
 
-    @Override
+	@Override
+	default Expression visit(KotlinDslLiteral expression) {
+		return expression;
+	}
+
+	@Override
     default Statement visit(CommentedStatement<?> statement) {
         return new CommentedStatement<>(statement.getCommentedStatement().accept(this));
     }

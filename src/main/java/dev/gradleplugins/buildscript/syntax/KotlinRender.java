@@ -3,14 +3,7 @@ package dev.gradleplugins.buildscript.syntax;
 import dev.gradleplugins.buildscript.ast.Node;
 import dev.gradleplugins.buildscript.ast.comments.Comment;
 import dev.gradleplugins.buildscript.ast.expressions.*;
-import dev.gradleplugins.buildscript.ast.statements.AssertStatement;
-import dev.gradleplugins.buildscript.ast.statements.CommentedStatement;
-import dev.gradleplugins.buildscript.ast.statements.ExpressionStatement;
-import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
-import dev.gradleplugins.buildscript.ast.statements.GroupStatement;
-import dev.gradleplugins.buildscript.ast.statements.ImportDeclaration;
-import dev.gradleplugins.buildscript.ast.statements.MultiStatement;
-import dev.gradleplugins.buildscript.ast.statements.Statement;
+import dev.gradleplugins.buildscript.ast.statements.*;
 import dev.gradleplugins.buildscript.ast.type.ValType;
 import dev.gradleplugins.buildscript.ast.type.VarType;
 import dev.gradleplugins.buildscript.blocks.ApplyStatement;
@@ -27,7 +20,6 @@ import static dev.gradleplugins.buildscript.ast.expressions.CurrentScopeExpressi
 import static dev.gradleplugins.buildscript.ast.type.ReferenceType.stringType;
 import static dev.gradleplugins.buildscript.ast.type.UnknownType.unknownType;
 import static dev.gradleplugins.buildscript.syntax.Syntax.bool;
-import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
 import static dev.gradleplugins.buildscript.syntax.Syntax.string;
 
 public final class KotlinRender implements RenderableSyntax.Renderer {
@@ -67,6 +59,12 @@ public final class KotlinRender implements RenderableSyntax.Renderer {
         public Content visit(GroupStatement statement) {
             return Content.of(StreamSupport.stream(statement.spliterator(), false).map(this::render).collect(Collectors.joining("\n")));
         }
+
+		public Content visit(KotlinDslLiteral expression) {
+			final Content.Builder builder = Content.builder();
+			expression.forEach(builder::add);
+			return builder.build();
+		}
 
         private String render(Statement statement) {
             return statement.accept(this).toString();
