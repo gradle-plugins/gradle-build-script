@@ -29,13 +29,24 @@ public final class GradleBuildFile extends AbstractBuildScriptFile implements Pr
     private BuildscriptBlock buildScriptBlock;
     private final List<Statement> statements = new ArrayList<>();
 
-    private GradleBuildFile(Path location) {
-        this.location = new BuildScriptLocation(location.resolve("build"), GradleDsl.GROOVY);
-    }
+	private GradleBuildFile(BuildScriptLocation location) {
+		this.location = location;
+	}
 
     public static GradleBuildFile inDirectory(Path location) {
-        return new GradleBuildFile(requireNonNull(location, "'location' must not be null")).writeScriptToFileSystem();
+		requireNonNull(location, "'location' must not be null");
+        return new GradleBuildFile(new BuildScriptLocation(location.resolve("build"), GradleDsl.GROOVY)).writeScriptToFileSystem();
     }
+
+	public static GradleBuildFile fromDirectory(Path location) {
+		requireNonNull(location, "'location' must not be null");
+
+		Path file = location.resolve("build.gradle");
+		if (!Files.exists(file)) {
+			file = location.resolve("build.gradle.kts");
+		}
+		return new GradleBuildFile(BuildScriptLocation.of(file));
+	}
 
     @Override
     public GradleBuildFile plugins(Consumer<? super PluginsDslBlock> configureAction) {

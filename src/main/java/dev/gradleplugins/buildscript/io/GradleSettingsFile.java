@@ -31,13 +31,24 @@ public final class GradleSettingsFile extends AbstractBuildScriptFile implements
     private BuildscriptBlock buildScriptBlock;
     private final List<Statement> statements = new ArrayList<>();
 
-    private GradleSettingsFile(Path location) {
-        this.location = new BuildScriptLocation(location.resolve("settings"), GradleDsl.GROOVY);
+    private GradleSettingsFile(BuildScriptLocation location) {
+        this.location = location;
     }
 
     public static GradleSettingsFile inDirectory(Path location) {
-        return new GradleSettingsFile(requireNonNull(location, "'location' must not be null")).writeScriptToFileSystem();
+		requireNonNull(location, "'location' must not be null");
+        return new GradleSettingsFile(new BuildScriptLocation(location.resolve("settings"), GradleDsl.GROOVY)).writeScriptToFileSystem();
     }
+
+	public static GradleSettingsFile fromDirectory(Path location) {
+		requireNonNull(location, "'location' must not be null");
+
+		Path file = location.resolve("settings.gradle");
+		if (!Files.exists(file)) {
+			file = location.resolve("settings.gradle.kts");
+		}
+		return new GradleSettingsFile(BuildScriptLocation.of(file));
+	}
 
     @Override
     public GradleSettingsFile plugins(Consumer<? super PluginsDslBlock> configureAction) {
