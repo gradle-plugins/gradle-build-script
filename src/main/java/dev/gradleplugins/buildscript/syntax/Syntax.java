@@ -8,6 +8,7 @@ import dev.gradleplugins.buildscript.ast.statements.CommentedStatement;
 import dev.gradleplugins.buildscript.ast.statements.ImportDeclaration;
 import dev.gradleplugins.buildscript.ast.statements.Statement;
 import dev.gradleplugins.buildscript.ast.type.ReferenceType;
+import org.intellij.lang.annotations.Language;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -90,6 +91,15 @@ public interface Syntax {
         return new ExpressionBuilder<>(new PropertyAccessExpression(unknownType(), PropertyAccessExpression.AccessType.EXTENSION, current(), extensionName));
     }
 
+	static KotlinDslLiteral kotlinDsl(@Language("kotlin") String lines) {
+		return new KotlinDslLiteral(Arrays.asList(lines));
+	}
+
+	static GroovyDslLiteral groovyDsl(@Language("GROOVY") String lines) {
+		return new GroovyDslLiteral(Arrays.asList(lines));
+	}
+
+	// On Java 15+ use groovyDsl(String) with a multiline string
     static GroovyDslLiteral groovyDsl(String... lines) {
         return new GroovyDslLiteral(Arrays.asList(lines));
     }

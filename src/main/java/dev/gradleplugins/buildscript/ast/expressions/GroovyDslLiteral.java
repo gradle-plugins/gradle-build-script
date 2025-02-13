@@ -1,6 +1,5 @@
 package dev.gradleplugins.buildscript.ast.expressions;
 
-import dev.gradleplugins.buildscript.ast.expressions.Expression;
 import dev.gradleplugins.buildscript.ast.type.Type;
 
 import java.util.Iterator;

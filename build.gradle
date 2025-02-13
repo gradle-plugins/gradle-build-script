@@ -11,6 +11,10 @@ java {
 	targetCompatibility = JavaVersion.VERSION_1_8
 }
 
+dependencies {
+	compileOnly 'org.jetbrains:annotations:26.0.2'
+}
+
 tasks.named('test', Test) {
 	it.useJUnitPlatform()
 }
