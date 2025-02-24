@@ -79,6 +79,10 @@ public interface Syntax {
         return new AssertStatement(expression, null);
     }
 
+	static ImportDeclaration importClass(String fullyQualifiedType) {
+		return new ImportDeclaration(ImportDeclaration.ImportType.TYPE, fullyQualifiedType);
+	}
+
     static ImportDeclaration importClass(Class<?> type) {
         return new ImportDeclaration(ImportDeclaration.ImportType.TYPE, type.getCanonicalName());
     }
