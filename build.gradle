@@ -1,6 +1,7 @@
 plugins {
 	id 'java-library'
 	id 'antlr'
+	id 'maven-publish'
 }
 
 group = 'dev.gradleplugins'
@@ -30,4 +31,12 @@ dependencies {
 
 tasks.named('generateGrammarSource', AntlrTask) { task ->
 	task.arguments += ['-visitor']
+}
+
+publishing {
+	publications {
+		java(MavenPublication) {
+			from components.java
+		}
+	}
 }
