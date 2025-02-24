@@ -29,13 +29,22 @@ public final class GradleSettingsFile extends AbstractBuildScriptFile implements
     private PluginsDslBlock pluginsDslBlock;
     private PluginManagementBlock pluginManagementBlock;
     private BuildscriptBlock buildScriptBlock;
-    private final List<Statement> statements = new ArrayList<>();
+    private final List<Statement> statements;
 
     private GradleSettingsFile(BuildScriptLocation location) {
         this.location = location;
+		this.statements = new ArrayList<>();
     }
 
-    public static GradleSettingsFile inDirectory(Path location) {
+	private GradleSettingsFile(BuildScriptLocation location, BuildscriptBlock buildScriptBlock, PluginManagementBlock pluginManagementBlock, PluginsDslBlock pluginsDslBlock, List<Statement> statements) {
+		this.statements = statements;
+		this.buildScriptBlock = buildScriptBlock;
+		this.pluginManagementBlock = pluginManagementBlock;
+		this.pluginsDslBlock = pluginsDslBlock;
+		this.location = location;
+	}
+
+	public static GradleSettingsFile inDirectory(Path location) {
 		requireNonNull(location, "'location' must not be null");
         return new GradleSettingsFile(new BuildScriptLocation(location.resolve("settings"), GradleDsl.GROOVY)).writeScriptToFileSystem();
     }
@@ -102,6 +111,10 @@ public final class GradleSettingsFile extends AbstractBuildScriptFile implements
         statements.add(new ExpressionStatement(expression));
         return writeScriptToFileSystem();
     }
+
+	public GradleSettingsFile writeToDirectory(Path directory) {
+		return new GradleSettingsFile(BuildScriptLocation.of(directory.resolve(location.getPath().getFileName().toString())), buildScriptBlock, pluginManagementBlock, pluginsDslBlock, statements);
+	}
 
     private GradleSettingsFile writeScriptToFileSystem() {
         List<Statement> stmt = new ArrayList<>();

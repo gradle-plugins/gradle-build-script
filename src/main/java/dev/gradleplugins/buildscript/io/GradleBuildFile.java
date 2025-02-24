@@ -27,10 +27,18 @@ public final class GradleBuildFile extends AbstractBuildScriptFile implements Pr
     private BuildScriptLocation location;
     private PluginsDslBlock pluginsDslBlock;
     private BuildscriptBlock buildScriptBlock;
-    private final List<Statement> statements = new ArrayList<>();
+    private final List<Statement> statements;
 
 	private GradleBuildFile(BuildScriptLocation location) {
 		this.location = location;
+		this.statements = new ArrayList<>();
+	}
+
+	private GradleBuildFile(BuildScriptLocation location, PluginsDslBlock pluginsDslBlock, BuildscriptBlock buildScriptBlock, List<Statement> statements) {
+		this.location = location;
+		this.pluginsDslBlock = pluginsDslBlock;
+		this.buildScriptBlock = buildScriptBlock;
+		this.statements = statements;
 	}
 
     public static GradleBuildFile inDirectory(Path location) {
@@ -105,6 +113,10 @@ public final class GradleBuildFile extends AbstractBuildScriptFile implements Pr
         location = location.use(GradleDsl.GROOVY);
         return writeScriptToFileSystem();
     }
+
+	public GradleBuildFile writeToDirectory(Path directory) {
+		return new GradleBuildFile(BuildScriptLocation.of(directory.resolve(location.getPath().getFileName().toString())), pluginsDslBlock, buildScriptBlock, statements);
+	}
 
     private GradleBuildFile writeScriptToFileSystem() {
         List<Statement> stmt = new ArrayList<>();
