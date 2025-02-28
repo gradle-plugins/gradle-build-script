@@ -87,6 +87,10 @@ public interface Syntax {
         return new ImportDeclaration(ImportDeclaration.ImportType.TYPE, type.getCanonicalName());
     }
 
+	static ImportDeclaration staticImportClass(String fullyQualifiedType) {
+		return new ImportDeclaration(ImportDeclaration.ImportType.STATIC, fullyQualifiedType + ".*");
+	}
+
 	static ImportDeclaration staticImportClass(Class<?> type) {
 		return new ImportDeclaration(ImportDeclaration.ImportType.STATIC, type.getCanonicalName() + ".*");
 	}
